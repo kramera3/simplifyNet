@@ -114,3 +114,31 @@ adj_to_edgelst<-function(mtrx,weights=TRUE){
   return(ej_lst)
 }
 
+
+#A toy iterative model that removes 1 - "remove.prop" amount of weights from network
+#This process happens in blocks of remove.per*length(edge_list)
+toy_iterative<-function(data,remove.prop,remove.per){
+  if (is.matrix(data) == TRUE) {
+    data <- adj_to_edgelst(data) #Convert to edge list
+    colnames(data) <- c("from", "to", "weight")
+  }
+  it <- temp <- data[order(data$weight),] #Order edge list
+  o_w <- sum(data$weights)
+  while(TRUE) {
+    if(count_components(graph_from_data_frame(temp))>1){ #Check if network is connected
+      return(it)
+    }else{
+      it <- temp
+      n_w <- sum(temp$weight) #Compute new sum of weights
+      if(n_w < remove.prop * o_w){ #Check if new sum is below remove.prop
+        return(it)
+      } else {
+        n = ceiling(remove.per*length(it)) #Remove percent of edge list
+        for(i in 1:n){
+          temp <- it[-i,]
+        }
+      }
+    }
+  }
+}
+
