@@ -1,4 +1,11 @@
 # Author: Andrew M. Kramer
+# Edited: Alexander M. Mercier [2020]
+
+require(igraph)
+require(cPCG)
+require(Matrix)
+
+source('Matrix_Mod.R')
 
 # Script for network sparsification
 # Will have a single wrapper function that calls options for each version
@@ -6,119 +13,138 @@
 # Inputs are data for fitting full network, parameters estimated for full network
 # User also supplies some options
 
-# Network sparsification
+# Network Sparsification
 # Possible methods
   # 1. Toivonen - Remove all edges that are not part of best path, algorithm from Toivonen et al. implemented with 'igraph' package
-  # 2. GlobalSparse - Remove weakest edges globally, default is to refit after each until reaching statistical cutoff, can also set proportion or go until disconnected
+  # 2. GlobalSparse - Remove edges under an edge weight cutoff
   # 3. LocalAdapt - Remove weakest edges locally rather than globally, can set proportion or use refitting and cutoff
+  # 4. EffectiveResistance - Randomly samples edges with probability proportional to the effective resistance of that edge, algorithm from Spielman and Srivastava (untested on directed networks)
 
-simplifyNet <- function(data, parameters=NULL, method="Toivonen", weights=NULL, cutoff=0.1, search="adaptive", disconnect=F, remove.prop=NULL){
+simplifyNet <- function(data, model, func, method="Toivonen", cutoff, remove.prop, num.samples, epsilon, matrix.sparse = FALSE, num.nodes = NULL){
   # Removes edges from network models using algorithm of choice
   #
   # Args:
-  #   model: function that can fit the network of interest, should generally return vector of fit parameters or matrix of edge weights, as well negative log-likelihood or some measure to use for cutoff
-  #   data: list of named data structures needed by 'model', need to match objects called in model
-  #         For gravity model this includes distances, mass, for White-nose syndrome also need winter length, species richness
-  #   parameters: fit parameters for the full (initial) network model if model is not meant to be fit on the fly
+  #   data: edge list structured | node 1 | node 2 | weight | as class data.frame, adjacency matrix of class matrix or sparseMatrix object
+  #   model: model to run on network for iterative sparsification process (NOT YET IMPLEMENTED)
+  #   func: scoring function for iterative sparsification (NOT YET IMPLEMENTED)
   #   method: algorithm used to remove edges, currently includes Toivonen (best-path), Refit and LocalAdapt. Default is Toivonen.
-  #   weights: directly pass the edge weights, can save steps in process but only sufficient for Toivonen
   #   cutoff: statistical cutoff used to halt edge removal, default is 2 (NLL units)
   #   search: whether to remove chunks of edges or proceed one-at-a-time. "direct" refits after each edge, can often be computationally prohibitive
   #   disconnect: whether to allow sparsification to lead to disconnection, only relevant for GlobalSparse
   #   remove.prop: argument can be passed to LocalAdapt or GlobalSparse to remove a set proportion of edges instead of using statistical cutoff
-  
+  #   num.samples: number of samples to take for Effective Resistance sampling
+  #   epsilon: level of approximation for calculating effective resistance
+  #   (to ensure quadratic laplacian similarity to multiplicative error alpha, let q = 9*C^2*n*logn/alpha^2 where C is a suitably large absolute constant for concentration)
+  #   matrix.sparse: choose to return sparseMatrix adjacency matrix
+  #   num.nodes: if there are disconnected nodes, specify the number of nodes for output
+  # Output:
+  #   output: sparsifed network in the class as inputted data
+
+  #Ensure that data is in edge list format if input data is an adjacency matrix
+  sm.lock <- 0
+  mtrx.lock <- 0
+  if (!is.null(num.nodes)){
+    num.nodes <- max(data[,1:2])
+  }
+
+  if (is(data, 'sparseMatrix')) {
+    sm.lock <- 1
+    data <- Mtrx_Elist(as.matrix(data))
+  }
   if (method == "Toivonen"){
-    output <- toivonen(data=data, parameters=parameters, weights=weights)
-    edges <- output
+    if (is.data.frame(data) == T){
+      data < - Elist_Mtrx(data, num.nodes)
+    }
+    mtrx.lock <- 1
+    sparse <- toivonen(data=data)
   }
   if (method == "GlobalSparse"){
-    output <- gns(data=data, parameters=parameters, weights=weights, cutoff=cutoff, search=search, disconnect=disconnect, remove.prop=remove.prop)
-    edges <- output[[1]]
-    parameters <- output [[2]]
+    if (is.matrix(data) != T){
+      data <- Mtrx_Elist(data)
+      mtrx.lock <- 1
+    }
+    sparse <- gns(data=data, cutoff=cutoff)
   }
   if (method == "LocalAdapt"){
-    output <- lans(data=data, parameters=parameters, weights=weights, cutoff=cutoff, remove.prop=remove.prop)
-    edges <- output [[1]]
-    parameters <- output [[2]]
+    if (is.matrix(data) != T){
+      data <- Elist_Mtrx(data, num.nodes)
+    } else {
+      mtrx.lock <- 1
+    }
+    sparse <- lans(data=data, remove.prop=remove.prop)
   }
+  if (method == 'EffectiveResistance'){
+    source('SpielmanSrivastava_Sparse.R')
+    if (is.matrix(data) != T){
+      data <- Elist_Mtrx(data, num.nodes)
+    } else {
+      mtrx.lock <- 1
+    }
+    R <- EffR(network = data, epsilon <- epsilon, n = NULL) #High RAM usage...
+    sparse <- EffRSparse(network = data, q = num.samples, R = R)
+  }
+
+  #Class of value inputted is outputted
+  if (isTRUE(matrix.sparse) | sm.lock == 1) {
+    output <- as(sparse, 'sparseMatrix')
+  } else if (mtrx.lock == 1){
+    output <- sparse
+  } else {
+    output <- data.frame(Mtrx_Elist(sparse))
+    colnames(output) <- c("node 1", "node 2", "weight")
+  }
+
+  return(output)
 }
 
-# Returns the sparse network containing every link that is in a best path, Toivonen et al 
-toivonen <- function(data, parameters, weights){
-  beta <- parameters
-  require(igraph)
-  if (length(weights) == 0){
-    weights <- getweights(dist=data$dist,mass=data$mass,tau=data$tau,SR=data$SR,beta) ##
+# Returns the sparse network containing every link that is in a best path, Toivonen et al
+toivonen <- function(data){
+  ## Determine if network is symmetric or not ##
+  if (isSymmetric.matrix(data)){
+    mode = 'undirected'
+  } else {
+    mode = 'directed'
   }
-  weights <- as.matrix(weights)
-  n <- dim(weights)[1]
-  nlweights <- -log(weights)
-  colnames(nlweights) <- as.character(1:n)
-  graph <- graph.adjacency(nlweights, mode="directed", weighted=TRUE)
-  
-  ###Make solution matrix
+
+  grph <- graph_from_adjacency_matrix(data, mode = mode, weighted = TRUE)
+
+  n <- dim(data)[1]
+  ## Make solution matrix ##
   mask<-matrix(FALSE, nrow=n, ncol=n)
-  
-  ###Look for best paths (in each direction)
+  ## Look for best paths (in each direction) ##
   for (i in 1:n){
-    paths <- get.shortest.paths(graph, from=as.character(i))[[1]] ##The initial list has 4 elements, all the best paths are stored in element[[1]]
-    ##transform path to "mask" indices of 1
+    paths <- get.shortest.paths(grph, from=as.character(i))[[1]] #The initial list has 4 elements, all the best paths are stored in element[[1]]
+    ## Transform path to "mask" indices of 1 ##
     for(j in 1:length(paths)){
-      if(length(paths[[j]]) > 1){ ##The path of each to itself is undefined, numeric(0)
+      if(length(paths[[j]]) > 1){ #The path of each to itself is undefined, numeric(0)
         for(k in 1:(length(paths[[j]]) - 1)){
           mask[paths[[j]][k], paths[[j]][k+1]] <- TRUE
         }
       }
     }
   }
-  return(mask)
+  return(mask * data)
 }
 
-# Returns the sparse network estimated through dropping weak links and refitting. 
-gns <- function(data, parameters, cutoff, search, disconnect, remove.prop){
-  beta <- parameters
-  dist<-data$dist
-  if (length(weights) == 0){
-    weights <- getweights(dist,data$mass,data$tau,data$SR,beta)
-  }
-  weights <- as.matrix(weights)
-  if (length(remove.prop)>0){
-    d <- dist
-    mask <- d!=0
-    w <- weights*mask
-    o <- order(w)
-    d[o[1:floor(remove.prop*length(o))]] <- 0
-    mask <- d!=0
-    if (edge_connectivity(mask) == 0) return (print("Resulting network is not strongly connected. Set 'disconnect=F' to ignore"))
-  } else {
-    while(1){  
-      i=sum(dist==0)
-      print(i)
-      dist=rmbinary(dist, data$mass, data$tau, data$SR, beta, data, years) #Years?
-      tbeta=try(refit2(dist,mass,tau,SR,data,beta,years),silent=TRUE)
-      if(is.character(tbeta)){break}
-      beta=tbeta
-      mask=dist!=0
-      save(mask, beta, file=paste('relaxbinary', i, '.Rdata', sep=''))
-    }
+#Returns the sparse network by some global threshold
+gns <- function(data, cutoff){
+  if (cutoff > 0) {
+    colnames(data)<-c("n1","n2","weight")
+    ret <- data[data$weight %in% data$weight[data$weight > cutoff],]
+    return(ret)
   }
 }
 
 #Returns the sparse network based on Locally adaptive network sparsification, Foti et al 2011, modified for directed network
-lans <- function(data, parameters, weights, cutoff, remove.prop){
-  beta <- parameters
-  if (length(weights) == 0){
-    weights <- getweights(data$dist,data$mass,data$tau,data$SR,beta)
-  }
-  weights <- as.matrix(weights)
-  n <- dim(weights)[1]
+lans <- function(data, remove.prop){
+  n <- dim(data)[1]
   Aij<-matrix(0, nrow=n, ncol=n)
   ##Get the fractional weights of the edges for each node
   ##go across rows and divide by sum, then across columns, calculating one triangle at a time
   ##In the models source is j and destination is i, that explains switch of rows and columns with Foti et al Supplement S4
-  Pij<-prop.table(weights,margin=1)
-  lower<-prop.table(weights, margin=2)
-  Pij[lower.tri(Pij)]<-lower[lower.tri(lower)]
+  Pij<-prop.table(data,margin=1) #Relative prob of numeric in the matrix across rows.
+  lower<-prop.table(data, margin=2) #Relative prob of numeric in the matrix across columns. #Note# This will be the same as above iff the matrix is symmetric
+  Pij[lower.tri(Pij)]<-lower[lower.tri(lower)]#lower.tri gives a matrix of same size with TRUE in the lower triangle (default is not to include diagonal)
   if (length(remove.prop>0)){
     for (i in 1:n){
       temp<-ecdf(Pij[,i])
@@ -128,131 +154,9 @@ lans <- function(data, parameters, weights, cutoff, remove.prop){
       }
     }
   } else { # call the iterative refitting algorithm that checks against cutoff
-    Aij<-Pij # Placeholder
+    Aij<-Pij
   }
-  return(Aij)
-}
-
-
-
-#partial relaxation with binary search
-relaxbinary<-function(dist, mass, tau, SR, beta, data, years){
-  while(1){  
-    i=sum(dist==0)
-    print(i)
-    dist=rmbinary(dist, mass, tau, SR, beta, data, years)
-    tbeta=try(refit2(dist,mass,tau,SR,data,beta,years),silent=TRUE)
-    if(is.character(tbeta)){break}
-    beta=tbeta
-    mask=dist!=0
-    save(mask, beta, file=paste('relaxbinary', i, '.Rdata', sep=''))
-  }
-}
-
-#use binary search to find nll threshold faster
-rmbinary<-function(dist, mass, tau, SR,beta, data, years, remove.prop){
-  dist=as.matrix(dist)
-  mask=dist!=0
-  w=getweights(dist, mass, tau, SR,beta)
-  w=w*mask
-  o=order(w)
-  beginll=objf(beta, dist, mass, tau, SR, data, years)
-  lower=sum(dist==0)+1
-  upper=prod(dim(dist))
-  if(lower>upper){lower=upper}
-  while(lower != upper){
-    d=dist
-    pivot=floor(mean(c(upper,lower)))
-    d[o[1:pivot]]<-0
-    testnll=signif(beginll,7)==signif(objf(beta, d, mass, tau, SR, data, years), 7)
-    if(testnll){lower=pivot+1}
-    else{upper=pivot}
-  }
-  d=dist
-  d[o[1:pivot]]<-0
-  return(d)
-}
-
-#Spatial decay function
-decay<-function(x,mass,tau,SR,beta0,beta1,beta2,beta3,beta4){
-  return(tmp=1/(1+exp(beta0 +beta1*tau + (beta2*x)/(mass**beta3) + SR*beta4)))
-}
-
-getweights<-function(dist,mass,tau,SR,beta){
-  mass=mass%*%t(mass)
-  tau=matrix(tau,ncol=length(tau),nrow=length(tau),byrow=TRUE)
-  SR=matrix(SR,ncol=length(SR),nrow=length(SR),byrow=TRUE)
-  ret=decay(dist,mass,tau,SR,beta[1],beta[2],beta[3],beta[4],beta[5])
-  diag(ret)<-0
-  return(ret)
-}
-
-refit2<-function(dist,mass,tau,SR,data,start,years){
-  last<-c(0,0,0,0)
-  beta<-start
-  while(!all(signif(beta,7)==signif(last,7))){
-    last<-beta
-    beta<-optim(par=last,fn=objf,dist=dist,mass=mass,tau=tau,SR=SR,data=data,years=years)$par
-  }
-  return(beta)
-}
-
-#returns probabilities that each node will be infected in the next time step
-getprobs<-function(start,dist,mass,tau,SR,b){
-  
-  #Check Trivial Cases
-  if(all(start)){
-    return(rep(1,length(start)))
-  }
-  if(!any(start)){
-    return(rep(0,length(start)))
-  }
-  
-  #calculate probability of infection from each infected node node to each uninfected node
-  mass=mass%*%t(mass)
-  tmp=decay(dist[which(start),which(!start)],mass[which(start),which(!start)], (rep(1,length(which(start))) %*% t(tau[which(!start)])), (rep(1,length(which(start))) %*% t(SR[which(!start)])), b[1],b[2],b[3],b[4],b[5])
-  tmp=tmp*(dist[which(start),which(!start)] != 0)
-  
-  #combine probabilities of infected nodes for each uninfected node
-  if(!is.null(dim(tmp))){
-    tmp=log(1-tmp)
-    tmp=rep(1,dim(tmp)[1]) %*% tmp
-    tmp=1-exp(tmp[1,])
-  }else if(sum(!start)==1){
-    tmp=1-exp(sum(log(1-tmp)))
-  }
-  
-  #construct return vector
-  ret=vector(length=length(start))
-  ret[which(start)]=1
-  ret[which(!start)]=tmp
-  
-  return(ret)
-}
-
-#calculate log likelihood for a single timestep
-lglike<-function(p,d){
-  for(i in 1:length(d)){
-    if(!d[i]){
-      p[i]=1-p[i]
-    }
-  }
-  return(sum(log(p)))
-}
-
-
-##This does the LANS method but check for statistical equivalence as in the relax binary method above
-relaxLANS<-function(dist, mass, tau, SR, beta, alpha=0.25){
-  while(1){  
-    i=sum(dist==0)
-    print(i)
-    dist=rmbinary(dist, mass, tau, SR, beta, data, years)
-    tbeta=try(refit2(dist,mass,tau,SR,data,beta,years),silent=TRUE)
-    if(is.character(tbeta)){break}
-    beta=tbeta
-    mask=dist!=0
-    save(mask, beta, file=paste('LANS', i, '.Rdata', sep=''))
-  }
+  return(Aij*data)
 }
 
 

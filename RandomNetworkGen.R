@@ -12,11 +12,11 @@ library(fields)
 # Output:
 # A or E - adj matrix or edge list of ER network
 ER_gen <- function(n, p, self_edge = FALSE){
+  set.seed(001)
   A = matrix(0L, nrow = n, ncol = n)
   for (i in 1:n){
     for (j in 1:n){
       if (i <= j) {
-        set.seed(001)
         theta = runif(1, min = 0, max = 1)
         if (theta < p){
           if (self_edge == TRUE){
@@ -143,7 +143,7 @@ SBM_gen <- function(s, W, self_edge = FALSE){
 # Output:
 # A - the adj matrix of the graph
 # pos - dict of lists, each entry the x, y coordinate
-GeoRan_gen <- function(n, r){
+RanGeo_gen <- function(n, r){
   A = matrix(0L, nrow = n, ncol = n)
   pos = data.frame(matrix(NA, nrow = n, ncol = 2))
   pos$X1 = runif(n, min = 0, max = 1)
