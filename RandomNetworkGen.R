@@ -9,20 +9,23 @@ library(fields)
 # Input:
 # n - the number of nodes
 # p - probability of adding an edge
+# weights - edge weights for ER network to sample from
+# w.prob - list of probabilities to sample edge weights with
 # Output:
 # A or E - adj matrix or edge list of ER network
-ER_gen <- function(n, p, self_edge = FALSE){
+ER_gen <- function(n, p, weights, w.prob = NULL, self_edge = FALSE){
+  #set.seed(001)
   A = matrix(0L, nrow = n, ncol = n)
   for (i in 1:n){
     for (j in 1:n){
       if (i <= j) {
-        set.seed(001)
         theta = runif(1, min = 0, max = 1)
         if (theta < p){
           if (self_edge == TRUE){
-            A[i, j] = 1
+            if (i == j) {A[i, j] = 2 * sample(x = weights, size = 1, replace = TRUE, prob = w.prob)}
+            else {A[i, j] = sample(x = weights, size = 1, replace = TRUE, prob = w.prob)}
           } else if (i != j){
-            A[i, j] = 1
+            A[i, j] = sample(x = weights, size = 1, replace = TRUE, prob = w.prob)
           }
         }
       }
@@ -37,9 +40,11 @@ ER_gen <- function(n, p, self_edge = FALSE){
 # Generate a Configuration Model
 # Input:
 # k - degree list
+# weights - edge weights for ER network to sample from
+# w.prob - list of probabilities to sample edge weights with
 # Output:
 # A - adj matrix of Configuration network
-ConfigNetwork_gen <- function(k){
+ConfigNetwork_gen <- function(k, weights, w.prob = NULL){
   if (Reduce('+', k) %% 2 != 0){stop("Please use a degree distribution that sums to an even number")} # The sum of the degrees must be even
   L = list()
   A = matrix(0L, nrow = length(k), ncol = length(k))
@@ -56,9 +61,9 @@ ConfigNetwork_gen <- function(k){
     n2 = L[[1]]
     L[1] = NULL
     if (n1 == n2){
-      A[n1, n2] = 2 + A[n1, n2] # Self edges have an added degree of two
+      A[n1, n2] = (2 * sample(x = weights, size = 1, replace = TRUE, prob = w.prob)) + A[n1, n2] # Self edges have an added degree of two
     } else {
-      A[n1, n2] = A[n2, n1] = 1 + A[n1, n2]
+      A[n1, n2] = A[n2, n1] = sample(x = weights, size = 1, replace = TRUE, prob = w.prob) + A[n1, n2]
     }
   }
 
@@ -94,9 +99,11 @@ l_g_partition <- function(L, s){
 # Input:
 # s - list of community sizes
 # W - matrix of probabilities where W_ij is the prob of connecting community i and j
+# weights - edge weights for ER network to sample from
+# w.prob - list of probabilities to sample edge weights with
 # Output:
 # A - adj matrix of SBM network
-SBM_gen <- function(s, W, self_edge = FALSE){
+SBM_gen <- function(s, W, weights, w.prob = NULL, self_edge = FALSE){
   n = Reduce('+', s) # Find total number of nodes
   A = matrix(0L, nrow = n, ncol = n)
   nodelist = list(1:n) # Create a node list
@@ -114,12 +121,12 @@ SBM_gen <- function(s, W, self_edge = FALSE){
               n = C1[[x]]
               m = C2[[y]]
               if (n != m){
-                A[n, m] = 1 + A[n, m]
+                A[n, m] = sample(x = weights, size = 1, replace = TRUE, prob = w.prob) + A[n, m]
                 if (i == j){
                   A[n, m] = 0 + A[n, m]
                 }
               } else if (self_edge == TRUE) {
-                A[n, n] = 2 + A[n, n]
+                A[n, n] = (2 * sample(x = weights, size = 1, replace = TRUE, prob = w.prob)) + A[n, n]
                 if (i == j){
                   A[n, m] = 0 + A[n, m]
                 }
@@ -140,10 +147,12 @@ SBM_gen <- function(s, W, self_edge = FALSE){
 # Input:
 # n - the number of nodes
 # r - minimum dist to add edge
+# weights - edge weights for ER network to sample from
+# w.prob - list of probabilities to sample edge weights with
 # Output:
 # A - the adj matrix of the graph
-# pos - dict of lists, each entry the x, y coordinate
-GeoRan_gen <- function(n, r){
+# pos - data.frame of x, y coordinate for each node
+RanGeo_gen <- function(n, r, weights, w.prob = NULL){
   A = matrix(0L, nrow = n, ncol = n)
   pos = data.frame(matrix(NA, nrow = n, ncol = 2))
   pos$X1 = runif(n, min = 0, max = 1)
@@ -153,7 +162,7 @@ GeoRan_gen <- function(n, r){
     for (j in 1:n){
       if (i < j) {
         if (dist_m[i,j] <= r){
-          A[i, j] = A[j, i] = 1
+          A[i, j] = A[j, i] = sample(x = weights, size = 1, replace = TRUE, prob = w.prob)
         }
       }
     }
