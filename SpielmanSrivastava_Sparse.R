@@ -22,7 +22,6 @@ QGen <- function(m, epsilon){
   Q = matrix(sample(c(-x,x), size = k_d * m, replace = TRUE),
              nrow = k_d,
              ncol = m)
-  #Q = as(Q, 'sparseMatrix') #Sparse is larger than non sparse matrix
 
   return(Q)
 }
@@ -36,20 +35,24 @@ QGen <- function(m, epsilon){
 # Output:
 # T - matrix of effective resistances for the edges in elist
 EffR <- function(network, epsilon, n = NULL){
-  if (nrow(network) != ncol(network)) {
+  if (nrow(network) != ncol(network)){
+    if (is.null(n)) n = max(network[,1:2])
     network = Elist_Mtrx(network, n)
   }
   A = as(network, 'sparseMatrix')
   B = sVIM(network)
-  L = as(laplacian_matrix(graph_from_adjacency_matrix(A), normalized = FALSE), 'matrix')
+  L = as(laplacian_matrix(graph_from_adjacency_matrix(A, mode = 'undirected', weighted = T)
+                          , normalized = FALSE), 'matrix')
   W = WDiag(network)
-  Q = QGen(nrow(B), epsilon)
+  Q = QGen(nrow(B), epsilon) #How to make this less RAM intensive?
   Y = as((Q %*% (sqrt(W)) %*% B), 'matrix')
+  rm(Q, W, B)
   Z = matrix(NA, nrow = nrow(Y), ncol = ncol(Y))
   for (i in 1:nrow(Y)){
     Y_v = matrix(Y[i, ])
     Z[i,] = cgsolve(L, Y_v)
   }
+  rm(Y)
   R = matrix(0L, nrow = nrow(A), ncol = ncol(A))
   for (i in 1:nrow(A)){
     for (j in 1:nrow(A)){
@@ -125,7 +128,7 @@ EffRSparse <- function(network, q, R, n = NULL){
   }
   P_n = normprobs(P)
   A = cbind(A, P_n)
-  C = A[sample(nrow(A), size = q, replace = TRUE, prob = P_n),]
+  C = A[sample(1:nrow(A), size = q, replace = TRUE, prob = P_n),]
   H = matrix(0L, nrow = n, ncol = n)
   for (j in 1:q){
     w_e = C[j, 3]
@@ -135,23 +138,4 @@ EffRSparse <- function(network, q, R, n = NULL){
   H = H + t(H)
 
   return(H)
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
