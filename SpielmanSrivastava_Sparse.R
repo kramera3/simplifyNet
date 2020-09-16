@@ -22,7 +22,6 @@ QGen <- function(m, epsilon){
   Q = matrix(sample(c(-x,x), size = k_d * m, replace = TRUE),
              nrow = k_d,
              ncol = m)
-  #Q = as(Q, 'sparseMatrix') #Sparse is larger than non sparse matrix
 
   return(Q)
 }
@@ -36,19 +35,67 @@ QGen <- function(m, epsilon){
 # Output:
 # T - matrix of effective resistances for the edges in elist
 EffR <- function(network, epsilon, n = NULL){
-  if (nrow(network) != ncol(network)) {
+  if (nrow(network) != ncol(network)){
+    if (is.null(n)) n = max(network[,1:2])
     network = Elist_Mtrx(network, n)
   }
-  A = as(network, 'sparseMatrix')
+  A = as(network, 'matrix')
   B = sVIM(network)
-  L = as(laplacian_matrix(graph_from_adjacency_matrix(A), normalized = FALSE), 'matrix')
+  L = as(laplacian_matrix(graph_from_adjacency_matrix(A, mode = 'undirected', weighted = T), normalized = FALSE), 'matrix')
   W = WDiag(network)
-  Q = QGen(nrow(B), epsilon)
+  Q = QGen(nrow(B), epsilon) #How to make this less RAM intensive?
   Y = as((Q %*% (sqrt(W)) %*% B), 'matrix')
+  rm(Q, W, B)
   Z = matrix(NA, nrow = nrow(Y), ncol = ncol(Y))
   for (i in 1:nrow(Y)){
     Y_v = matrix(Y[i, ])
     Z[i,] = cgsolve(L, Y_v)
+  }
+  rm(Y)
+  R = matrix(0L, nrow = nrow(A), ncol = ncol(A))
+  for (i in 1:nrow(A)){
+    for (j in 1:nrow(A)){
+      if (i != j) R[i, j] = abs(sum((Z[,i] - Z[,j])^2))
+    }
+  }
+
+  return(R)
+}
+
+
+# Approximately find effective resistances for edges of a graph
+# Based on algorithm from Spielman-Srivastava (2011) with decreased RAM usage
+# Input:
+# network - adj matrix or edge list
+# epsilon - parameter to control accuracy
+# Output:
+# T - matrix of effective resistances for the edges in elist
+EffR2 <- function(network, epsilon, n = NULL){
+  if (nrow(network) != ncol(network)){
+    if (is.null(n)) n = max(network[,1:2])
+    network = Elist_Mtrx(network, n)
+  }
+  A = as(network, 'matrix')
+  B = sVIM(network)
+  L = as(laplacian_matrix(graph_from_adjacency_matrix(A, mode = 'undirected', weighted = T), normalized = FALSE), 'matrix')
+  W = WDiag(network)
+  WB = sqrt(W) %*% B
+  edge_num = nrow(B)
+  node_num = nrow(A)
+  k = ((24 * log(edge_num))) / (epsilon ^ 2)
+  k_D = ceiling(k)
+  x = 1 / sqrt(k)
+  rm(W, B)
+  Z = matrix(NA, nrow = k_D, ncol = node_num)
+  for (i in 1:k_D){
+    Y_r = matrix(0L, nrow=1, ncol=node_num)
+    C = matrix(sample(c(-x,x), size = edge_num, replace = TRUE), nrow=1)
+    for (j in 1:node_num){
+      WB_c = matrix(WB[ ,j])
+      entry = C %*% WB_c
+      Y_r[1,j] = entry
+    }
+    Z[i,] = cgsolve(L, Y_r)
   }
   R = matrix(0L, nrow = nrow(A), ncol = ncol(A))
   for (i in 1:nrow(A)){
@@ -59,6 +106,7 @@ EffR <- function(network, epsilon, n = NULL){
 
   return(R)
 }
+
 
 
 # Normalize probs such that sum(probs)=1
@@ -125,7 +173,7 @@ EffRSparse <- function(network, q, R, n = NULL){
   }
   P_n = normprobs(P)
   A = cbind(A, P_n)
-  C = A[sample(nrow(A), size = q, replace = TRUE, prob = P_n),]
+  C = A[sample(1:nrow(A), size = q, replace = TRUE, prob = P_n),]
   H = matrix(0L, nrow = n, ncol = n)
   for (j in 1:q){
     w_e = C[j, 3]
@@ -135,23 +183,4 @@ EffRSparse <- function(network, q, R, n = NULL){
   H = H + t(H)
 
   return(H)
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
