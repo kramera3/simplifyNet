@@ -35,21 +35,53 @@ QGen <- function(m, epsilon){
 # epsilon - parameter to control accuracy
 # Output:
 # T - matrix of effective resistances for the edges in elist
-EffR <- function(network, epsilon, n = NULL){
-  if (nrow(network) != ncol(network)) {
+EffRPar <- function(network, epsilon, workers=strtoi(Sys.getenv('NUMBER_OF_PROCESSORS')), n = NULL){
+  if (nrow(network) != ncol(network)){
+    if (is.null(n)) n = max(network[,1:2])
     network = Elist_Mtrx(network, n)
   }
-  A = as(network, 'sparseMatrix')
+  A = as(network, 'matrix')
   B = sVIM(network)
-  L = as(laplacian_matrix(graph_from_adjacency_matrix(A), normalized = FALSE), 'matrix')
+  L = as(igraph::laplacian_matrix(graph_from_adjacency_matrix(A, mode = 'undirected', weighted = T), normalized = FALSE), 'matrix')
   W = WDiag(network)
-  Q = QGen(nrow(B), epsilon)
-  Y = as((Q %*% (sqrt(W)) %*% B), 'matrix')
-  Z = matrix(NA, nrow = nrow(Y), ncol = ncol(Y))
-  for (i in 1:nrow(Y)){
-    Y_v = matrix(Y[i, ])
-    Z[i,] = cgsolve(L, Y_v)
+  WB = sqrt(W) %*% B
+  edge_num = nrow(B)
+  node_num = nrow(A)
+  k = ((24 * log(edge_num))) / (epsilon ^ 2)
+  k_D = ceiling(k)
+  batch = ceiling(k_D/workers)
+  x = 1 / sqrt(k)
+  rm(W, B)
+  Z = matrix(NA, nrow = k_D, ncol = node_num)
+
+  solver = function(x){
+    cPCG::cgsolve(L, x)
   }
+
+  cc = snow::makeSOCKcluster(workers)
+  snow::clusterExport(cc, 'L', envir=environment())
+  snow::clusterExport(cc, 'cgsolve', envir=environment()) #Needed?
+
+  Z = c()
+  for (i in 1:batch){
+    Ys.df = data.frame(matrix(NA, nrow=workers, ncol=node_num))
+    for (j in 1:workers){
+      Y_r = matrix(0L, nrow=1, ncol=node_num)
+      C = matrix(sample(c(-x,x), size = edge_num, replace = TRUE), nrow=1)
+      for (k in 1:node_num){
+        WB_c = matrix(WB[ ,k])
+        entry = C %*% WB_c
+        Y_r[1,k] = entry #apply statement
+      }
+      Ys.df[j, ] = Y_r
+    }
+
+    Zc_s = matrix(snow::parRapply(cc, Ys.df, solver), nrow=workers, ncol=node_num)
+
+    Z = append(Z, Zc_s)
+  }
+  stopCluster(cc)
+  Z = matrix(Z, nrow=workers*batch, ncol=node_num, byrow=TRUE)
   R = matrix(0L, nrow = nrow(A), ncol = ncol(A))
   for (i in 1:nrow(A)){
     for (j in 1:nrow(A)){
@@ -60,46 +92,6 @@ EffR <- function(network, epsilon, n = NULL){
   return(R)
 }
 
-
-# Normalize probs such that sum(probs)=1
-# Input:
-# P - list of probs
-# Output:
-# P_n - list of probs that sum to 1
-normprobs <- function(P){
-  p_f = 1/ sum(P)
-  P_n = c()
-  for (p in P){
-    P_n = append(P_n, p_f * p)
-  }
-
-  return(P_n)
-}
-
-
-# Create a list of edge R_eff
-# Input:
-# R - matrix of R_effs
-# A - adj matrix
-# Output:
-# R_v - vector of edge R_eff
-EffR_List <- function(R, network, n = NULL){
-  #if (nrow(network) != ncol(network)){
-  #  A = Elist_Mtrx(network, n = n)
-  #}
-  R_v = c()
-  A[upper.tri(A)] = 0
-  R[upper.tri(R)] = 0
-  for (i in 1:nrow(A)){
-    for (j in 1:nrow(A)){
-      if (A[i,j] > 0){
-        R_v = append(R_v, R[i,j])
-      }
-    }
-  }
-
-  return(R_v)
-}
 
 
 # Create a effective resistance sparsifer
