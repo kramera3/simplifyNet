@@ -4,7 +4,7 @@ Script for network sparsification
 
 ## Getting Started
 
-Install and load devtool package:
+Install and load _devtools_ package:
 ```sh
 install.packages("devtools")
 ```
@@ -20,9 +20,9 @@ install_github("kramer3/simplifyNet")
 
 ### Prerequisites
 
-Install following packages:
+The following packages are required:
 ```sh
-maptools, raster, rgdal, rgeos, foreign, sp, stat4, spatstat, maps, igraph
+igraph, cPCG, Matrix, tidyr, fields
 ```
 
 Also set up the working directory:
@@ -30,17 +30,23 @@ Also set up the working directory:
 setwd("<em>working directory</em>")
 ```
 
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
+## simplifyNet
 ```
-Give an example
+simplifyNet(data, method="Toivonen", model, func, cutoff, remove.prop, num.samples, epsilon, matrix.sparse = FALSE, num.nodes = NULL)
 ```
+
+**Arguments**
+
+* **data:** Inputted network - can be in format adjacency matrix (matrix or sparseMatrix) or edge list (data.frame |n1|n2|weight|)
+* **method:** Either 'Toivonen', 'GlobalSparse', 'LocalAdapt', or 'EffectiveResistance'
+* **model:** For iterative refitting, model to evaluate edge importance
+* **func:** For iterative refitting, function to score edge importance
+* **cutoff:** For 'GlobalSparse', global minimum edge weight threshold
+* **remove.prop:** For 'LocalAdapt', proportion of edges to remove from inputted network
+* **num.samples:** For 'EffectiveResistance', number of samples to take from edge probability distribution
+* **epsilon:** For 'EffectiveResistance', degree to approximate effective resistances
+* **matrix.sparse = FALSE:** Return sparseMatrix class object
+* **num.nodes = NULL:** If number of nodes must be specified
 
 ## Authors
 
@@ -48,6 +54,6 @@ Give an example
 
 ## License
 
-~~
+* **GNU General Public License**
 
 
