@@ -21,3 +21,7 @@ Approximately calculate the effective resistances between all nodes of a graph. 
 Based on algorithm from Spielman-Srivastava (2011) \cr
 This version of the effective resistance approximation calculator is RAM intensive. If you are working with a large network, use either \link[simplifyNet]{EffR2} or \link[simplifyNet]{EffRPar}
 }
+\examples{
+A <- ER_gen(n=100, p=0.1, weights=1)
+R <- EffR(network=A, epsilon=0.1)
+}

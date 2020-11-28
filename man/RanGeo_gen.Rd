@@ -21,3 +21,12 @@ The adjacency matrix, \code{A}, of the random matrix with a data.frame, \code{po
 \description{
 Generate a random geometric network with specified maximum edge distance
 }
+\examples{
+n <- 100
+r <- 0.15
+weights <- c(0.25, 0.5, 0.75, 1)
+w.prob <- c(0.50, 0.25, 0.15, 0.10)
+RanGeo = RanGeo_gen(n=n, r=r, weights=weights, w.prob=w.prob)
+A = RanGeo[[1]]
+pos = RanGeo[[2]]
+}

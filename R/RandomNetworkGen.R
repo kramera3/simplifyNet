@@ -19,6 +19,12 @@
 #' To include self edges within the Erdos-Renyi model
 # Output:
 #' @return An adjacency matrix, \code{A}, of the Erdos-Renyi model
+#' @examples
+#' n <- 100
+#' p <- 0.1
+#' weights <- c(0.25, 0.5, 0.75, 1)
+#' w.prob <- c(0.50, 0.25, 0.15, 0.10)
+#' A <- ER_gen(n=n, p=p, weights=weights, w.prob=w.prob)
 #' @export
 ER_gen <- function(n, p, weights, w.prob = NULL, self.edge = FALSE){
   #set.seed(001)
@@ -57,6 +63,10 @@ ER_gen <- function(n, p, weights, w.prob = NULL, self.edge = FALSE){
 #' A vector of edge weight probabilities to sample edge weights with
 # Output:
 #' @return An adjacency matrix, \code{A}, of configuration network
+#' @examples
+#' k <- c(1,4,3,7,2,3)
+#' weights <- 1
+#' A <- ConfigNetwork_gen(k=k, weights=weights)
 #' @export
 ConfigNetwork_gen <- function(k, weights, w.prob = NULL){
   if (Reduce('+', k) %% 2 != 0){stop("Please use a degree distribution that sums to an even number")} # The sum of the degrees must be even
@@ -125,6 +135,12 @@ l_g_partition <- function(L, s){
 #' To include self edges within the Erdos-Renyi model
 # Output:
 #' @return An adjacency matrix, \code{A}, of a stochastic block model
+#' @examples
+#' s <- list(25, 10, 15)
+#' W <- matrix(data=c(0.1, 0.02, 0.03, 0.02, 0.15, 0.04, 0.03, 0.04, 0.2), nrow=3, ncol=3)
+#' weights <- c(0.25, 0.5, 0.75, 1)
+#' w.prob <- c(0.50, 0.25, 0.15, 0.10)
+#' A <- SBM_gen(s=s, W=W, weights=weights, w.prob=w.prob)
 #' @export
 SBM_gen <- function(s, W, weights, w.prob = NULL, self.edge = FALSE){
   n = Reduce('+', s) # Find total number of nodes
@@ -181,6 +197,14 @@ SBM_gen <- function(s, W, weights, w.prob = NULL, self.edge = FALSE){
 #' Vector of probabilities to sample edge weights with
 # Output:
 #' @return The adjacency matrix, \code{A}, of the random matrix with a data.frame, \code{pos}, of the x,y coordinates for each node
+#' @examples
+#' n <- 100
+#' r <- 0.15
+#' weights <- c(0.25, 0.5, 0.75, 1)
+#' w.prob <- c(0.50, 0.25, 0.15, 0.10)
+#' RanGeo = RanGeo_gen(n=n, r=r, weights=weights, w.prob=w.prob)
+#' A = RanGeo[[1]]
+#' pos = RanGeo[[2]]
 #' @export
 RanGeo_gen <- function(n, r, weights, w.prob = NULL){
   A = matrix(0L, nrow = n, ncol = n)

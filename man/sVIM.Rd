@@ -15,3 +15,7 @@ A vertex incidence matrix, \code{B},  made up of vertex incidence vectors
 \description{
 Compute vertex incidence matrix of a given network
 }
+\examples{
+network <- ER_gen(n=100, p=0.1, 1)
+B = sVIM(network)
+}

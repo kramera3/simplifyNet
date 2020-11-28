@@ -24,3 +24,10 @@ From Spielman and Srivastava 2008 \cr
 Effective resistance edge values are used to randomly sample edges with replacement. After \code{O(nlog^c(n)/epsilon^2)} samples with replacement, the algorithm produces a weighted
 subgraph such that the Laplacian is approximately multiplicity preserved within +/-\code{epsilon}.
 }
+\examples{
+A <- ER_gen(n=100, p=0.1, weights=1)
+R <- EffRPar(network=A, epsilon=0.1, workers=16)
+m = length(Mtrx_EList(A))
+q = ceiling((m*(log(m))^1)/(0.1^2))
+G <- EffRSparse(network=A, q=q, R=R)
+}

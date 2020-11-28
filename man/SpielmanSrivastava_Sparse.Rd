@@ -5,10 +5,10 @@
 \alias{QGen}
 \title{Random Bernoulli Matrix Generation}
 \usage{
-QGen(m, epsilon)
+QGen(n, epsilon)
 }
 \arguments{
-\item{m}{Number edges in the given network}
+\item{n}{Number nodes in the given network}
 
 \item{epsilon}{Used to specify resolution of the approximation with regard to the Johnson-Lindenstrauss lemma}
 }

@@ -23,6 +23,13 @@ An adjacency matrix, \code{A}, of the Erdos-Renyi model
 \description{
 Generate an Erdos-Renyi model with specified edge weights and edge weight probabilities
 }
+\examples{
+n <- 100
+p <- 0.1
+weights <- c(0.25, 0.5, 0.75, 1)
+w.prob <- c(0.50, 0.25, 0.15, 0.10)
+A <- ER_gen(n=n, p=p, weights=weights, w.prob=w.prob)
+}
 \author{
 Author: Alexander M. Mercier
 }

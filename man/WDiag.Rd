@@ -15,3 +15,7 @@ Matrix, \code{W}, with network weights on the diagonal
 \description{
 Compute the weight diagonal matrix of a network
 }
+\examples{
+network <- ER_gen(n=100, p=0.1, 1)
+W = WDiag(network)
+}

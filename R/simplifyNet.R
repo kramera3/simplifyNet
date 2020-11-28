@@ -16,7 +16,7 @@
 #' @description  Possible methods \cr
   #' 1. Toivonen - Remove all edges that are not part of best path, algorithm from Toivonen et al. implemented with 'igraph' package \cr
   #' 2. GlobalSparse - Remove edges under an edge weight cutoff \cr
-  #' 3. Local - Remove weakest edges locally rather than globally, can set proportion or use refitting and cutoff \cr
+  #' 3. LocalSparse - Remove weakest edges locally rather than globally, can set proportion or use refitting and cutoff \cr
   #' 4. EffectiveResistance - Randomly samples edges with probability proportional to the effective resistance of that edge, algorithm from Spielman and Srivastava (untested on directed networks) \cr
 # Args:
 #' @param data edge list structured | node 1 | node 2 | weight | as class data.frame, adjacency matrix of class matrix or sparseMatrix object
@@ -33,7 +33,25 @@
 #' @param matrix.sparse choose to return sparseMatrix adjacency matrix; default is \code{FALSE}
 #' @param num.nodes if there are disconnected nodes, specify the number of nodes for output; default is \code{NULL}
 # Output:
-#' @return Sparsifed network through the given method in the class as inputted network data
+#' @return Sparsified network through the given method in the class as inputted network data
+#' @examples
+#' A <- ER_gen(n=100, p=0.1, weights=1)
+#' G <- simplifyNet(data=A, method="Toivonen")
+#'
+#' n <- 100
+#' p <- 0.1
+#' weights <- c(0.25, 0.5, 0.75, 1)
+#' w.prob <- c(0.50, 0.25, 0.15, 0.10)
+#' A <- ER_gen(n=n, p=p, weights=weights, w.prob=w.prob)
+#' G <- simplifyNet(data=A, method="GlobalSparse", cutoff=0.5)
+#'
+#' A <- ER_gen(n=100, p=0.1, weights=1)
+#' G <- simplifyNet(data=A, method="LocalSparse", remove.prop=0.6)
+#'
+#' A <- ER_gen(n=100, p=0.1, weights=1)
+#' num.samples = length(Mtrx_EList(A))
+#' G <- simplifyNet(data=A, method="EffectiveResistance", num.samples=num.samples, epsilon=0.1)
+#' @export
 
 simplifyNet <- function(data, method="Toivonen", model, func, cutoff, remove.prop, num.samples, epsilon, matrix.sparse = FALSE, num.nodes = NULL){
   #Removes edges from network models using algorithm of choice
@@ -88,7 +106,7 @@ simplifyNet <- function(data, method="Toivonen", model, func, cutoff, remove.pro
   } else if (mtrx.lock == 1){
     output <- sparse
   } else {
-    output <- data.frame(Mtrx_EList(sparse))
+    output <- sparse #data.frame(Mtrx_EList(sparse))
     colnames(output) <- c("node 1", "node 2", "weight")
   }
 

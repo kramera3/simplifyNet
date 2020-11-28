@@ -11,20 +11,20 @@
 #' Used to fulfill Johnson-Lindenstrauss lemma \cr
 #' From Spielman and Srivastava 2011 \cr
 #  Input:
-#' @param  m
-#' Number edges in the given network
+#' @param  n
+#' Number nodes in the given network
 #' @param epsilon
 #' Used to specify resolution of the approximation with regard to the Johnson-Lindenstrauss lemma
 # Output:
 #' @return Generates a random +/- 1/sqrt(k) Bernoulli matrix, \code{Q}
 #' @export
-QGen <- function(m, epsilon){
-  k = ((24 * log(m))) / (epsilon ^ 2)
+QGen <- function(n, epsilon){
+  k = ((log(n,2))) / (epsilon)
   k_d = ceiling(k)
   x = 1 / sqrt(k)
-  Q = matrix(sample(c(-x,x), size = k_d * m, replace = TRUE),
+  Q = matrix(sample(c(-x,x), size = k_d * n, replace = TRUE),
              nrow = k_d,
-             ncol = m)
+             ncol = n)
 
   return(Q)
 }
@@ -45,6 +45,9 @@ QGen <- function(m, epsilon){
 #' The number of nodes; default is \code{NULL} and should not be changed unless the network is disconnected
 # Output:
 #' @return A matrix, \code{R}, such that \code{R_ij} gives the approximate effective resistance between node \code{i} and \code{j}
+#' @examples
+#' A <- ER_gen(n=100, p=0.1, weights=1)
+#' R <- EffR(network=A, epsilon=0.1)
 #' @export
 EffR <- function(network, epsilon, n = NULL){
   if (nrow(network) != ncol(network)){
@@ -53,7 +56,7 @@ EffR <- function(network, epsilon, n = NULL){
   }
   A = methods::as(network, 'matrix')
   B = sVIM(network)
-  L = methods::as(igraph::laplacian_matrix(graph_from_adjacency_matrix(A, mode = 'undirected', weighted = T), normalized = FALSE), 'matrix')
+  L = as.matrix(diag(rowSums(abs(network))) - network)
   W = WDiag(network)
   Q = QGen(nrow(B), epsilon) #How to make this less RAM intensive?
   Y = methods::as((Q %*% (sqrt(W)) %*% B), 'matrix')
@@ -64,9 +67,9 @@ EffR <- function(network, epsilon, n = NULL){
     Z[i,] = cPCG::cgsolve(L, Y_v)
   }
   rm(Y)
-  R = matrix(0L, nrow = nrow(A), ncol = ncol(A))
-  for (i in 1:nrow(A)){
-    for (j in 1:nrow(A)){
+  R = matrix(0L, nrow = nrow(L), ncol = ncol(L))
+  for (i in 1:nrow(L)){
+    for (j in 1:nrow(L)){
       if (i != j) R[i, j] = abs(sum((Z[,i] - Z[,j])^2))
     }
   }
@@ -90,41 +93,38 @@ EffR <- function(network, epsilon, n = NULL){
 #' The number of nodes; default is \code{NULL} and should not be changed unless the network is disconnected
 # Output:
 #' @return A matrix, \code{R}, such that \code{R_ij} gives the approximate effective resistance between node \code{i} and \code{j}
+#' @examples
+#' A <- ER_gen(n=100, p=0.1, weights=1)
+#' R <- EffR(network=A, epsilon=0.1)
 #' @export
-EffR2 <- function(network, epsilon, n = NULL){
+EffR2 <- function(network, epsilon, n = FALSE){
   if (nrow(network) != ncol(network)){
     if (is.null(n)) n = max(network[,1:2])
     network = EList_Mtrx(network, n)
+  } else {
+    n = nrow(network)
   }
-  A = methods::as(network, 'matrix')
-  B = sVIM(network)
-  L = methods::as(igraph::laplacian_matrix(graph_from_adjacency_matrix(A, mode = 'undirected', weighted = T), normalized = FALSE), 'matrix')
-  W = WDiag(network)
-  WB = sqrt(W) %*% B
-  edge_num = nrow(B)
-  node_num = nrow(A)
-  k = ((24 * log(edge_num))) / (epsilon ^ 2)
-  k_D = ceiling(k)
-  x = 1 / sqrt(k)
-  rm(W, B)
-  Z = matrix(NA, nrow = k_D, ncol = node_num)
-  for (i in 1:k_D){
-    Y_r = matrix(0L, nrow=1, ncol=node_num)
-    C = matrix(sample(c(-x,x), size = edge_num, replace = TRUE), nrow=1)
-    for (j in 1:node_num){
-      WB_c = matrix(WB[ ,j])
-      entry = C %*% WB_c
-      Y_r[1,j] = entry
-    }
-    Z[i,] = cPCG::cgsolve(L, Y_r)
+  m = dim(Mtrx_EList(network))[1]
+  tolProb = 0.5
+  L = as.matrix(diag(rowSums(abs(network))) - network)
+  B = sVIM(as.matrix(network))
+  W = WDiag(as.matrix(network))
+  k = ceiling((24*log(n,2)) / (epsilon^2))
+  Z = matrix(NA, nrow=k, ncol=n)
+  for(i in 1:k){
+    ons = stats::runif(m, 0, 1) > tolProb
+    ons = ons - !(ons)
+    ons = ons/sqrt(k)
+    Z_r = cgsolve(L,t(as.matrix(ons%*%W%*%B)))
+    Z_r = t(Z_r)
+    Z[i,] = Z_r
   }
-  R = matrix(0L, nrow = nrow(A), ncol = ncol(A))
-  for (i in 1:nrow(A)){
-    for (j in 1:nrow(A)){
+  R = matrix(0L, nrow = nrow(L), ncol = ncol(L))
+  for (i in 1:nrow(L)){
+    for (j in 1:nrow(L)){
       if (i != j) R[i, j] = abs(sum((Z[,i] - Z[,j])^2))
     }
   }
-
   return(R)
 }
 
@@ -146,25 +146,28 @@ EffR2 <- function(network, epsilon, n = NULL){
 #' The number of nodes; default is \code{NULL} and should not be changed unless the network is disconnected
 # Output:
 #' @return A matrix, \code{R}, such that \code{R_ij} gives the approximate effective resistance between node \code{i} and \code{j}
+#' @examples
+#' A <- ER_gen(n=100, p=0.1, weights=1)
+#' R <- EffRPar(network=A, epsilon=0.1, workers=16)
 #' @export
 EffRPar <- function(network, epsilon, workers=strtoi(Sys.getenv('NUMBER_OF_PROCESSORS')), n = NULL){
   if (nrow(network) != ncol(network)){
     if (is.null(n)) n = max(network[,1:2])
     network = EList_Mtrx(network, n)
+  } else {
+    n = nrow(network)
   }
-  A = methods::as(network, 'matrix')
-  B = sVIM(network)
-  L = methods::as(igraph::laplacian_matrix(graph_from_adjacency_matrix(A, mode = 'undirected', weighted = T), normalized = FALSE), 'matrix')
+  m = dim(Mtrx_EList(network))[1]
+  tolProb = 0.5
+  L = as.matrix(diag(rowSums(abs(network))) - network)
+  B = sVIM(network) #Could be faster...
   W = WDiag(network)
-  WB = sqrt(W) %*% B
-  edge_num = nrow(B)
-  node_num = nrow(A)
-  k = ((24 * log(edge_num))) / (epsilon ^ 2)
-  k_D = ceiling(k)
-  batch = ceiling(k_D/workers)
-  x = 1 / sqrt(k)
-  rm(W, B)
-  Z = matrix(NA, nrow = k_D, ncol = node_num)
+  k = ceiling((log(n,2)) / (epsilon))
+  batch = ceiling(k/workers)
+
+  #batcher = function(x){
+  #  t(as.matrix(x%*%as.matrix(W)%*%as.matrix(B)))
+  #}
 
   solver = function(x){
     cPCG::cgsolve(L, x)
@@ -172,31 +175,38 @@ EffRPar <- function(network, epsilon, workers=strtoi(Sys.getenv('NUMBER_OF_PROCE
 
   cc = snow::makeSOCKcluster(workers)
   snow::clusterExport(cc, 'L', envir=environment())
-  snow::clusterExport(cc, 'cgsolve', envir=environment()) #Needed?
+  snow::clusterExport(cc, 'cgsolve', envir=environment())#Needed?
 
-  Z = c()#Pre allocate vector
+  Z = matrix(NA, nrow=1, ncol=batch*workers*n)
+  x = 1
+  y = workers * n
   for (i in 1:batch){
-    Ys.df = data.frame(matrix(NA, nrow=workers, ncol=node_num))
+    Ys = matrix(0L, nrow=workers, ncol=n)
     for (j in 1:workers){
-      Y_r = matrix(0L, nrow=1, ncol=node_num)
-      C = matrix(sample(c(-x,x), size = edge_num, replace = TRUE), nrow=1)
-      for (k in 1:node_num){
-        WB_c = matrix(WB[ ,k])
-        entry = C %*% WB_c
-        Y_r[1,k] = entry #apply statement
-      }
-      Ys.df[j, ] = Y_r
+      ons = stats::runif(m, 0, 1) > tolProb
+      ons = ons - !(ons)
+      ons = ons/sqrt(k)
+      Y_r = t(as.matrix(ons%*%W%*%B))
+      Ys[j, ] = Y_r
     }
+    #ons = runif(m*workers, 0, 1) > tolProb
+    #ons = ons - !(ons)
+    #ons = ons/sqrt(k)
+    #ons = matrix(ons, nrow=m, ncol=workers)
+    #Ys = snow::parRapply(cc, ons, batcher)
 
-    Zc_s = matrix(snow::parRapply(cc, Ys.df, solver), nrow=workers, ncol=node_num)
+    Zc_s = snow::parRapply(cc, Ys, solver)
 
-    Z = append(Z, Zc_s) #May take a long time | could use apply
+    Z[,x:y] = Zc_s #May take a long time | could use apply
+    x = x + (workers * n)
+    y = y + (workers * n)
   }
   snow::stopCluster(cc)
-  Z = matrix(Z, nrow=workers*batch, ncol=node_num, byrow=TRUE)
-  R = matrix(0L, nrow = nrow(A), ncol = ncol(A))
-  for (i in 1:nrow(A)){
-    for (j in 1:nrow(A)){
+  rm(cc)
+  Z = matrix(Z, nrow=workers*batch, ncol=n, byrow=TRUE)
+  R = matrix(0L, nrow = nrow(L), ncol = ncol(L))
+  for (i in 1:nrow(L)){
+    for (j in 1:nrow(L)){
       if (i != j) R[i, j] = abs(sum((Z[,i] - Z[,j])^2))
     }
   }
@@ -242,11 +252,11 @@ EffR_List <- function(R, network, n = NULL){
   #  A = EList_Mtrx(network, n = n)
   #}
   R_v = c()
-  A[upper.tri(A)] = 0
+  network[upper.tri(network)] = 0
   R[upper.tri(R)] = 0
-  for (i in 1:nrow(A)){
-    for (j in 1:nrow(A)){
-      if (A[i,j] > 0){
+  for (i in 1:nrow(network)){
+    for (j in 1:nrow(network)){
+      if (network[i,j] > 0){
         R_v = append(R_v, R[i,j])
       }
     }
@@ -273,11 +283,19 @@ EffR_List <- function(R, network, n = NULL){
 #' The number of nodes; default is \code{NULL} and should not be changed unless the network is disconnected
 # Output:
 #' @return Generate an effective resistance spectral sparsifer adjacency matrix, \code{H}
+#' @examples
+#' A <- ER_gen(n=100, p=0.1, weights=1)
+#' R <- EffRPar(network=A, epsilon=0.1, workers=16)
+#' m = length(Mtrx_EList(A))
+#' q = ceiling((m*(log(m))^1)/(0.1^2))
+#' G <- EffRSparse(network=A, q=q, R=R)
 #' @export
 EffRSparse <- function(network, q, R, n = NULL){
   if (nrow(network) == ncol(network)){
     n = nrow(network)
     A = Mtrx_EList(network)
+  } else {
+    A = network
   }
   W_list = A[,3]
   R_list = EffR_List(R, EList_Mtrx(A, n))
@@ -290,6 +308,9 @@ EffRSparse <- function(network, q, R, n = NULL){
   P_n = normprobs(P)
   A = cbind(A, P_n)
   C = A[sample(1:nrow(A), size = q, replace = TRUE, prob = P_n),]
+  if(is.null(nrow(C))){
+    C = matrix(C, nrow = 1, ncol = 4, byrow=TRUE)
+  }
   H = matrix(0L, nrow = n, ncol = n)
   for (j in 1:q){
     w_e = C[j, 3]

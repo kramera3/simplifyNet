@@ -15,6 +15,10 @@ An edge list \code{E_List} of adjacency matrix \code{A}.
 \description{
 Convert an adjacency matrix to an edge list
 }
+\examples{
+A <- ER_gen(n=100, p=0.1, 1)
+E = Mtrx_EList(A)
+}
 \author{
 Author: Alexander M. Mercier
 }

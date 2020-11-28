@@ -20,3 +20,8 @@ An adjacency matrix, \code{A}, of configuration network
 \description{
 Generate a configuration model from a given degree sequence
 }
+\examples{
+k <- c(1,4,3,7,2,3)
+weights <- 1
+A <- ConfigNetwork_gen(k=k, weights=weights)
+}

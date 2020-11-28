@@ -28,3 +28,7 @@ Approximately calculate the effective resistances between all nodes of a graph. 
 Based on algorithm from Spielman-Srivastava (2011) \cr
 This version of the effective resistance calculator is more RAM efficient and uses the parallel processing package **snow**
 }
+\examples{
+A <- ER_gen(n=100, p=0.1, weights=1)
+R <- EffRPar(network=A, epsilon=0.1, workers=16)
+}

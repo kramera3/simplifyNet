@@ -23,3 +23,10 @@ An adjacency matrix, \code{A}, of a stochastic block model
 \description{
 Generate a stochastic block model from specified community sizes, between community probability of an edge, and within community probability of an edge
 }
+\examples{
+s <- list(25, 10, 15)
+W <- matrix(data=c(0.1, 0.02, 0.03, 0.02, 0.15, 0.04, 0.03, 0.04, 0.2), nrow=3, ncol=3)
+weights <- c(0.25, 0.5, 0.75, 1)
+w.prob <- c(0.50, 0.25, 0.15, 0.10)
+A <- SBM_gen(s=s, W=W, weights=weights, w.prob=w.prob)
+}

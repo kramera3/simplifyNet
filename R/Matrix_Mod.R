@@ -11,6 +11,9 @@
 #' Adjacency matrix
 # Output:
 #' @return An edge list \code{E_List} of adjacency matrix \code{A}.
+#' @examples
+#' A <- ER_gen(n=100, p=0.1, 1)
+#' E = Mtrx_EList(A)
 #' @export
 Mtrx_EList <- function(A){
   n = dim(A)
@@ -18,7 +21,7 @@ Mtrx_EList <- function(A){
   edges = which(A != 0, arr.ind = TRUE)
   weights = A[which(!A == 0)]
   E_List = cbind(edges, weights)
-  colnames(E_List) <- c('row', 'col', 'weight')
+  colnames(E_List) <- c('n1', 'n2', 'weight')
 
   return(E_List)
 }
@@ -55,6 +58,9 @@ EList_Mtrx <- function(E_List, n){
 #' Adjacency matrix or edge list of a network; edge list should be formatted |in|out|weight|
 # Output:
 #' @return Matrix, \code{W}, with network weights on the diagonal
+#' @examples
+#' network <- ER_gen(n=100, p=0.1, 1)
+#' W = WDiag(network)
 #' @export
 WDiag <- function(network){
   if (dim(network)[1] == dim(network)[2]){
@@ -76,6 +82,9 @@ WDiag <- function(network){
 #' Adjacency matrix or edge list with weights
 # Output:
 #' @return A vertex incidence matrix, \code{B},  made up of vertex incidence vectors
+#' @examples
+#' network <- ER_gen(n=100, p=0.1, 1)
+#' B = sVIM(network)
 #' @export
 sVIM <- function(network){
   if (dim(network)[1] == dim(network)[2]){
