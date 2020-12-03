@@ -26,6 +26,7 @@ Mtrx_EList <- function(A){
   return(E_List)
 }
 
+
 #' @name EList_Mtrx
 #' @title Edge list to adjacency matrix
 #' @description  Convert an edge list to an adjacency matrix
