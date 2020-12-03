@@ -57,4 +57,3 @@ simplifyNet(data, method="Toivonen", model, func, cutoff, remove.prop, num.sampl
 * **GNU General Public License**
 
 
-
