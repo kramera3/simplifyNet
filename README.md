@@ -1,6 +1,10 @@
 # simplifyNet
 
-Package for network sparsification
+Package for network sparsification.
+
+## Description
+
+An R package for network sparsification with a variety of novel and known network sparsification techniques. All network sparsification reduce the number of edges, not the number of nodes. A network is usually a large, complex weighted graph obtained from real-world data. It is commonly stored as an adjacency matrix or edge list. Network sparsification is sometimes referred to as network dimensionality reduction. 
 
 ## Getting Started
 
@@ -99,7 +103,18 @@ EffRSparse(n, E_List, q, effR)
 
 ## Authors
 
--   **Dr. Andrew Kramer** - [simplifyNet](https://github.com/kramer3/simplifyNet)
+-   **Dr. Andrew Kramer** - Primary Author [simplifyNet](https://github.com/kramer3/simplifyNet)
+-   **Alexander Mercier** - Package Maintainer 
+-   **Shubhankar Tripathi** - Contributor
+-   **Tomlin Pulliam** -  Contributor
+-   **John Drake** - Contributor
+
+## Method Acknowledgements
+
+-   **EffR** and **EffRSparse** are based on work by [Daniel A. Spielman and Nikihl Srivastava](https://arxiv.org/abs/0803.0929).
+-   **EffR** also based on work by [Koutis et al.](https://www.cs.cmu.edu/~jkoutis/papers/stacs239koutis.pdf)
+-   **toivonen** based on work by [Hannu Toivonen et al.](https://link.springer.com/chapter/10.1007/978-3-642-13062-5_21)
+-   **lans** based on work by [Foti et al.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3035633/)
 
 ## License
 
