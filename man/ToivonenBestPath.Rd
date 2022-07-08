@@ -19,8 +19,16 @@ If the network is dissociative, then the shortest path would be between \code{w_
 Edge list of sparsified network
 }
 \description{
-Calcualtes network sparsifier from best path
+Calculates network sparsifier from best path
+}
+\examples{
+g = igraph::erdos.renyi.game(100, 0.1)
+igraph::E(g)$weight <- runif(length(igraph::E(g)))
+E_List = cbind(igraph::as_edgelist(g), igraph::E(g)$weight)
+H = toivonen(E_List, directed = FALSE, associative = TRUE)
 }
 \author{
-Author: Alexander M. Mercier
+Alexander Mercier
+
+Andrew Kramer
 }

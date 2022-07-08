@@ -2,16 +2,37 @@ Package: simplifyNet
 Type: Package
 Title: SimplifyNet
 Version: 0.0.1
-Author: Andrew M. Kramer
-Maintainer: The package maintainer is <amkramer@usf.edu>
-Description: Package for network sparsification.
+Authors@R: 
+  c(person(given = "Andrew", 
+  family = "Kramer", 
+  role = c("aut"),
+  email = "amkramer@usf.edu"),
+  person(given = "Alexander",
+  family = "Mercier",
+  role = c("aut", "cre", "trl"),
+  email = "amercier@g.harvard.edu"),
+  person(given = "Shubhankar",
+  family = "Tripathi",
+  role = c("ctb"),
+  email = "shubhankar1201@outlook.com"),
+  person(given = "Tomlin",
+  family = "Pulliam",
+  role = c("ctb")),
+  person(given = "John",
+  family = "Drake",
+  role = c("ctb"),
+  email = "jdrake@uga.edu",
+  comment = c(ORCID = "0000-0003-4646-1235")))
+Maintainer: The package maintainer is <amercier@g.harvard.edu>
+Description: An R package for network sparsification with a variety of novel and known network sparsification techniques. 
+All network sparsification reduce the number of edges, not the number of nodes. A network is usually a large, complex weighted graph obtained from real-world data.
+It is commonly stored as an adjacency matrix or edge list. Network sparsification is sometimes refered to as network dimensionality reduction. 
 Depends:
     R (>= 3.4),
 Imports:
     igraph (>= 1.3.1),
     sanic (>= 0.0.1),
     Matrix (>= 1.2-18), 
-    tidyr (>= 1.1.2), 
     methods (>= 4.0.2),
     stats (>= 4.0.2),
     dplyr (>= 1.0.9)

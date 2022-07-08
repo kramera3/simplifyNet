@@ -2,16 +2,20 @@
 % Please edit documentation in R/EffRSparse.R
 \name{Lap}
 \alias{Lap}
-\title{Graph laplacian calculator}
+\title{Graph Laplacian calculator}
 \usage{
 Lap(A)
 }
 \arguments{
-\item{A}{Weighted adjacency matrix of the class dgCMatrix}
+\item{A}{Weighted adjacency matrix}
 }
 \value{
-Graph laplacian, \code{L}, of the class dgCMatrix.
+Graph Laplacian, \code{L}, of the class dgCMatrix.
 }
 \description{
-Find the graph laplacian from a weighted adjacency matrix
+Find the graph Laplacian from a weighted adjacency matrix
+}
+\examples{
+A = matrix(c(0,1,1,1,0,1,1,1,0), 3 ,3)
+L = Lap(A)
 }

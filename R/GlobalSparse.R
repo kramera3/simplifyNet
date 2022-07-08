@@ -1,4 +1,4 @@
-#' @author Author: Alexander M. Mercier
+#' @author Alexander Mercier
 #' @rdname GlobalSparse
 
 
@@ -14,6 +14,11 @@
 #' Threshold value for edge weight thresholding.
 # Output:
 #' @return Edge list of sparsified network
+#' @examples
+#' g = igraph::erdos.renyi.game(100, 0.1)
+#' igraph::E(g)$weight <- runif(length(igraph::E(g)))
+#' E_List = cbind(igraph::as_edgelist(g), igraph::E(g)$weight)
+#' H = gns(E_List, remove.prop = 0.5)
 #' @export
 
 #Returns the sparse network by some global threshold

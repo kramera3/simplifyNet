@@ -19,6 +19,12 @@ Edge list of sparsified network
 \description{
 Remove all edges under certain edge weight threshold.
 }
+\examples{
+g = igraph::erdos.renyi.game(100, 0.1)
+igraph::E(g)$weight <- runif(length(igraph::E(g)))
+E_List = cbind(igraph::as_edgelist(g), igraph::E(g)$weight)
+H = gns(E_List, remove.prop = 0.5)
+}
 \author{
-Author: Alexander M. Mercier
+Alexander Mercier
 }

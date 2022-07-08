@@ -5,7 +5,8 @@
 #   Test Package:              'Ctrl + Shift + T'
 
 
-#' @author Author: Alexander M. Mercier
+#' @author Alexander Mercier
+#' @author Andrew Kramer
 #' @rdname ToivonenBestPath
 
 # From Toivonen et al. 2010, "A Framework for Path-Oriented Network Simplification"
@@ -13,7 +14,7 @@
 
 #' @name toivonen
 #' @title Sparsification via Best Path
-#' @description Calcualtes network sparsifier from best path
+#' @description Calculates network sparsifier from best path
 #  Input:
 #' @param  E_List
 #' Edge list of the given network in the format of | node 1 | node 2 | weight |.
@@ -25,6 +26,11 @@
 #' If the network is dissociative, then the shortest path would be between \code{w_e}.
 # Output:
 #' @return Edge list of sparsified network
+#' @examples
+#' g = igraph::erdos.renyi.game(100, 0.1)
+#' igraph::E(g)$weight <- runif(length(igraph::E(g)))
+#' E_List = cbind(igraph::as_edgelist(g), igraph::E(g)$weight)
+#' H = toivonen(E_List, directed = FALSE, associative = TRUE)
 #' @export
 
 # Returns the sparse network containing every link that is in a best path, Toivonen et al

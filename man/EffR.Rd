@@ -19,7 +19,7 @@ EffR(E_List, epsilon = 0.1, type = "kts", tol = 1e-10)
 \item{tol}{Tolerance for the linear algebra (conjugate gradient) solver to find the effective resistances. Default value is 1e-10.}
 }
 \value{
-Return either exact or approximate effective resistances for each edge in the same order as "weight" in edge list.
+Return either exact or approximate effective resistances for each edge in the same order as "weight" in the edge list.
 }
 \description{
 Calculate or approximate the effective resistances of an inputted, undrected graph. There are three methods. \cr
@@ -27,4 +27,8 @@ Calculate or approximate the effective resistances of an inputted, undrected gra
 (2) 'spl' which approximates the effective resistances of the inputted graph using the original Spielman-Srivastava algorithm.\cr
 (3) 'kts' which approximates the effective resistances of the inputted graph using the implementation by Koutis et al. (ideal for large graphs where memory usage is a concern).\cr
 The relative fidelity of the approximation methods is governed by the variable epsilon.
+}
+\examples{
+E_List = matrix(c(1,1,2,2,3,3,1,1,1), 3, 3) #Triangle graph, \eqn{K_3}, with edge weights 1
+effR = EffR(E_List, epsilon = 0.1, type = 'kts', tol = 1e-10)
 }

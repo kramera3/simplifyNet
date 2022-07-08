@@ -1,4 +1,5 @@
-#' @author Author: Alexander M. Mercier
+#' @author Andrew Kramer
+#' @author Alexander Mercier
 #' @rdname LocalSparse
 
 # From Foti et al. 2011 "Nonparametric Sparsification of Complex Multiscale Networks"
@@ -11,13 +12,19 @@
 #' From Spielman and Srivastava 2011 \cr
 #  Input:
 #' @param  Adj
-#' Weighted adjacency matrix of the network
+#' Weighted adjacency matrix of the network of class "matrix".
 #' @param remove.prop
 #' Alpha value threshold to designate statistically "unimportant" edges by edge weight.
 #' @param output
 #' If the output should be directed or undirected. Default is that the output is the same as the input based on adjacency matrix symmetry. If the default is overridden, set as either "undirected" or "directed".
 # Output:
-#' @return Adjacency of sparsified network
+#' @return Weighted adjacency matrix of sparsified network
+#' @examples
+#' g = igraph::erdos.renyi.game(100, 0.1)
+#' igraph::E(g)$weight <- runif(length(igraph::E(g)))
+#' A = igraph::as_adj(g, attr = "weight")
+#' A = as(A, "matrix")
+#' H = lans(A, remove.prop = 0.3)
 #' @export
 
 
@@ -38,7 +45,6 @@ lans <- function(Adj, remove.prop, output){
       directed <- TRUE
     }
   }
-
   n <- dim(Adj)[1]
   mask<-matrix(0L, nrow=n, ncol=n)
   ##Get the fractional weights of the edges for each node

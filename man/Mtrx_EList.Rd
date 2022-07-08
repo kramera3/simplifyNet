@@ -17,3 +17,6 @@ An edge list, \code{E_List}, of adjacency matrix, \code{A}, of the form | n1 | n
 \description{
 Convert an adjacency matrix to an edge list
 }
+\author{
+Alexander Mercier
+}

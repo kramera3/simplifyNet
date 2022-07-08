@@ -4,16 +4,18 @@
 \alias{EffRSparse}
 \title{Sparsification through sampling effective resistances}
 \usage{
-EffRSparse(n, E_List, q, effR)
+EffRSparse(E_List, q, effR, seed, n)
 }
 \arguments{
-\item{n}{The number of nodes in the network.}
-
 \item{E_List}{Edge list formatted | n1 | n2 | weight |.}
 
 \item{q}{The numbers of samples taken. The fidelity to the original network increases as the number of samples increases, but decreases the sparseness.}
 
 \item{effR}{Effective resistances corresponding to each edge. Should be in the same order as "weight".}
+
+\item{seed}{Set the seed to reproduce results of random sampling.}
+
+\item{n}{The number of nodes in the network. Default is the max node index of the edge list.}
 }
 \value{
 A sparsified network, \code{H}, edge list where the number of edges is dependent on the number of samples taken, \code{q}.
@@ -21,4 +23,11 @@ A sparsified network, \code{H}, edge list where the number of edges is dependent
 \description{
 Sparsify an undirected network by sampling edges proportional to w_e * R_e.\cr
 Approximately preserves the graph Laplacian, \code{L}, with increasing fidelity as the number of samples taken increases.
+}
+\examples{
+g = igraph::erdos.renyi.game(100, 0.1)
+igraph::E(g)$weight <- runif(length(igraph::E(g)))
+E_List = cbind(igraph::as_edgelist(g), igraph::E(g)$weight)
+effR = simplifyNet::EffR(E_List)
+H = EffRSparse(E_List, q = 200, effR = effR, seed = 150)
 }

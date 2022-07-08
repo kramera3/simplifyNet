@@ -7,20 +7,29 @@
 lans(Adj, remove.prop, output)
 }
 \arguments{
-\item{Adj}{Weighted adjacency matrix of the network}
+\item{Adj}{Weighted adjacency matrix of the network of class "matrix".}
 
 \item{remove.prop}{Alpha value threshold to designate statistically "unimportant" edges by edge weight.}
 
 \item{output}{If the output should be directed or undirected. Default is that the output is the same as the input based on adjacency matrix symmetry. If the default is overridden, set as either "undirected" or "directed".}
 }
 \value{
-Adjacency of sparsified network
+Weighted adjacency matrix of sparsified network
 }
 \description{
 Remove all edges under certain edge weight threshold.
 Used to fulfill Johnson-Lindenstrauss lemma \cr
 From Spielman and Srivastava 2011 \cr
 }
+\examples{
+g = igraph::erdos.renyi.game(100, 0.1)
+igraph::E(g)$weight <- runif(length(igraph::E(g)))
+A = igraph::as_adj(g, attr = "weight")
+A = as(A, "matrix")
+H = lans(A, remove.prop = 0.3)
+}
 \author{
-Author: Alexander M. Mercier
+Andrew Kramer
+
+Alexander Mercier
 }
