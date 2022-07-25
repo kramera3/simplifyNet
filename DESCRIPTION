@@ -24,9 +24,7 @@ Authors@R:
   email = "jdrake@uga.edu",
   comment = c(ORCID = "0000-0003-4646-1235")))
 Maintainer: The package maintainer is <amercier@g.harvard.edu>
-Description: An R package for network sparsification with a variety of novel and known network sparsification techniques. 
-All network sparsification reduce the number of edges, not the number of nodes. A network is usually a large, complex weighted graph obtained from real-world data.
-It is commonly stored as an adjacency matrix or edge list. Network sparsification is sometimes refered to as network dimensionality reduction. 
+Description: An R package for network sparsification with a variety of novel and known network sparsification techniques. All network sparsification reduce the number of edges, not the number of nodes. A network is usually a large, complex weighted graph obtained from real-world data. It is commonly stored as an adjacency matrix or edge list. Network sparsification is sometimes refered to as network dimensionality reduction. 
 Depends:
     R (>= 3.4),
 Imports:
