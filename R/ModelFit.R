@@ -20,8 +20,6 @@
 #' Percentage of edges to add/remove from the sparsifier at each step.
 # Output:
 #' @return Sparsified network, \code{func(H)}, which still maintains evaluator function, \code{func}, plus/minus \code{tol}.
-#' @example
-#'
 #' @export
 irefit <- function(E_List, func, tol, rank = 'none', connected = FALSE, per = 0.5){
   if(dim(E_List)[2] == 2){
