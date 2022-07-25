@@ -20,30 +20,37 @@
 #' Percentage of edges to add/remove from the sparsifier at each step.
 # Output:
 #' @return Sparsified network, \code{func(H)}, which still maintains evaluator function, \code{func}, plus/minus \code{tol}.
+#' @example
+#'
 #' @export
-irefit <- function(E_List, func, tol, rank = 'weight', connected = TRUE, per = 0.5){
-  if(rank == 'weight'){
-    E_List = E_List[order(E_List[,3], decreasing = FALSE), ]
+irefit <- function(E_List, func, tol, rank = 'none', connected = FALSE, per = 0.5){
+  if(dim(E_List)[2] == 2){
+  } else if(rank == 'weight'){
+    E_List = E_List[order(E_List[,3], decreasing = TRUE), ]
   } else if(rank == 'random'){
     E_List = E_List[sample(nrow(E_List)), ]
+  } else if(rank == "none"){
+    E_List = E_List
   } else {
-    E_List = E_List[order(cbind(E_List, methods::as(rank, 'vector'))[,4], decreasing = FALSE), ]
+    E_List = rerank(E_List, rank)
   }
   org_score = func(E_List)
   if(methods::is(org_score, "list")){
-    E_List = cbind(E_List, org_score[[1]])
-    org_score = org_score[[2]]
+    E_List = rerank(E_List, org_score[[2]]) #Refitted weights
+    org_score = org_score[[1]]
     stepsize = ceiling(per*nrow(E_List))
-    index = nrow(E_List) - stepsize
-    S_List = E_List[1:index,]
+    piviot = nrow(E_List) - stepsize
+    S_List = E_List[1:piviot,]
     spr_score = func(S_List)
-    S_List = cbind(S_List, spr_score[[1]])
-    spr_score = spr_score[[2]]
+    S_List = rerank(S_List, spr_score[[2]])
+    spr_score = spr_score[[1]]
+  } else {
+    stepsize = ceiling(per*nrow(E_List))
+    piviot = nrow(E_List) - stepsize
+    S_List = E_List[1:piviot,]
+    spr_score = func(S_List)
   }
-  stepsize = ceiling(per*nrow(E_List))
-  index = nrow(E_List) - stepsize
-  S_List = E_List[1:index,]
-  spr_score = func(S_List)
+
   S_List = sparse.step(E_List,
                       S_List,
                       stepsize,
@@ -58,52 +65,59 @@ irefit <- function(E_List, func, tol, rank = 'weight', connected = TRUE, per = 0
 
 
 sparse.step <- function(E_List, S_List, stepsize, spr_score, org_score, func, tol, per, connected){
-  S = simplifyNet::EList_Mtrx(S_List)
-  print(cat(stepsize, nrow(S_List), spr_score, is.connected(S)))
+  S = simplifyNet::EList_Mtrx(S_List, TRUE)
+  print(cat(stepsize, nrow(S_List), as.character(spr_score), is.connected(S)))
   stepsize = ceiling(per * stepsize)
   if(connected){
-    if(abs(spr_score - org_score) > tol || !(is.connected(S))){
-      index = nrow(S_List) + stepsize
-      S_List = E_List[1:index,]
+    if(abs(spr_score - org_score) > tol || !(is.connected(S)) || spr_score == Inf){
+      piviot = nrow(S_List) + stepsize
+      S_List = E_List[1:piviot,]
       spr_score = func(S_List)
-      if(methods::is(spr_score, "list")){
-        S_List = cbind(S_List, spr_score[[1]])
-        spr_score = spr_score[[2]]
-      }
+      if(methods::is(spr_score, "list") && spr_score[[1]] != Inf){
+        S_List = rerank(S_List, spr_score[[2]]) #refit
+        spr_score = spr_score[[1]] #score
+      } else {spr_score = spr_score[[1]]}
       sparse.step(E_List, S_List, stepsize, spr_score, org_score, func, tol, per, connected)
     } else if(stepsize == 1) {
         return(S_List)
     } else if(abs(spr_score - org_score) <= tol) {
-      index = nrow(S_List) - stepsize
-      S_List = E_List[1:index,]
+      piviot = nrow(S_List) - stepsize
+      S_List = S_List[1:piviot,]
       spr_score = func(S_List)
-      if(methods::is(spr_score, "list")){
-        S_List = cbind(S_List, spr_score[[1]])
-        spr_score = spr_score[[2]]
-      }
+      if(methods::is(spr_score, "list") && spr_score[[1]] != Inf){
+        S_List = rerank(S_List, spr_score[[2]]) #refit
+        spr_score = spr_score[[1]] #score
+      } else {spr_score = spr_score[[1]]}
       sparse.step(E_List, S_List, stepsize, spr_score, org_score, func, tol, per, connected)
     }
   } else {
     if(abs(spr_score - org_score) > tol) {
-      index = nrow(S_List) + stepsize
-      S_List = E_List[1:index,]
+      piviot = nrow(S_List) + stepsize
+      S_List = E_List[1:piviot,]
       spr_score = func(S_List)
-      if(methods::is(spr_score, "list")){
-        S_List = cbind(S_List, spr_score[[1]])
-        spr_score = spr_score[[2]]
-      }
+      if(methods::is(spr_score, "list") && spr_score[[1]] != Inf){
+        S_List = rerank(S_List, spr_score[[2]]) #refit
+        spr_score = spr_score[[1]] #score
+      } else {spr_score = spr_score[[1]]}
       sparse.step(E_List, S_List, stepsize, spr_score, org_score, func, tol, per, connected)
+    } else if(stepsize == 1) {
+      return(S_List)
     } else if(abs(spr_score - org_score) <= tol) {
-      index = nrow(S_List) - stepsize
-      S_List = E_List[1:index,]
-      spr_score = func
-      if(methods::is(spr_score, "list")){
-        S_List = cbind(S_List, spr_score[[1]])
-        spr_score = spr_score[[2]]
-      }
+      piviot = nrow(S_List) - stepsize
+      S_List = S_List[1:piviot,]
+      spr_score = func(S_List)
+      if(methods::is(spr_score, "list") && spr_score[[1]] != Inf){
+        S_List = rerank(S_List, spr_score[[2]]) #refit
+        spr_score = spr_score[[1]] #score
+      } else {spr_score = spr_score[[1]]}
       sparse.step(E_List, S_List, stepsize, spr_score, org_score, func, tol, per, connected)
     }
   }
+}
+
+rerank <- function(E_List, rank){
+  E_List = E_List[order(cbind(E_List, methods::as(rank, 'vector'))[,4], decreasing = TRUE), ]
+  return(E_List)
 }
 
 #' @name find.neighbors
@@ -194,3 +208,4 @@ LeverageScore <- function(E_List){
   StatLev = effR * E_List[,3]
   return(sum(StatLev))
 }
+
