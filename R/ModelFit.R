@@ -1,12 +1,9 @@
-#' @author Alexander Mercier
-#' @rdname ModelFit
-
 #' @name irefit
 #' @title Iterative refitting
-#' @description  Iterative sparsifcation based
+#' @description  Iterative sparsifcation based refiting.
 # Input:
-#' @param E_List
-#' Edge list of the given network in the format of | node 1 | node 2 | weight |.
+#' @param network
+#' Weighted adjacency matrix, weighted \code{igraph} network, or edge list formatted | n1 | n2 | weight | with colnames \code{c("n1", "n2", "weight")}.
 #' @param func
 #' Model function whose input is the network and whose output is a single real value or a list of reevaluated weights in the first index and a real value in the second.\cr
 #' A wrapper function may have to be written.
@@ -16,12 +13,17 @@
 #' Ranking of edges. Lower ranked edges are removed first. Must be the same length as \code{nrow(E_List)}.
 #' @param connected
 #' If TRUE, connectivity of the network is prioritized over scoring by \code{func}.
+#' @param directed
+#' If \code{TRUE}, specifies that the inputted network is directed. Default is \code{FALSE}.
 #' @param per
 #' Percentage of edges to add/remove from the sparsifier at each step.
 # Output:
-#' @return Sparsified network, \code{func(H)}, which still maintains evaluator function, \code{func}, plus/minus \code{tol}.
+#' @return Sparsified network, \code{H}, which still maintains evaluator function, \code{func}, plus/minus \code{tol}.
+#' @author Alexander Mercier
+#' @author Andrew Kramer
 #' @export
-irefit <- function(E_List, func, tol, rank = 'none', connected = FALSE, per = 0.5){
+irefit <- function(network, func, tol, rank = 'none', connected = FALSE, directed = FALSE, per = 0.5){
+  E_List = simplifyNet::net.as(network, net.to = "E_List", directed = directed)
   if(dim(E_List)[2] == 2){
   } else if(rank == 'weight'){
     E_List = E_List[order(E_List[,3], decreasing = TRUE), ]
@@ -37,15 +39,15 @@ irefit <- function(E_List, func, tol, rank = 'none', connected = FALSE, per = 0.
     E_List = rerank(E_List, org_score[[2]]) #Refitted weights
     org_score = org_score[[1]]
     stepsize = ceiling(per*nrow(E_List))
-    piviot = nrow(E_List) - stepsize
-    S_List = E_List[1:piviot,]
+    pivot = nrow(E_List) - stepsize
+    S_List = E_List[1:pivot,]
     spr_score = func(S_List)
     S_List = rerank(S_List, spr_score[[2]])
     spr_score = spr_score[[1]]
   } else {
     stepsize = ceiling(per*nrow(E_List))
-    piviot = nrow(E_List) - stepsize
-    S_List = E_List[1:piviot,]
+    pivot = nrow(E_List) - stepsize
+    S_List = E_List[1:pivot,]
     spr_score = func(S_List)
   }
 
@@ -61,15 +63,22 @@ irefit <- function(E_List, func, tol, rank = 'none', connected = FALSE, per = 0.
   return(S_List)
 }
 
-
+#' @name sparse.step
+#' @title Iterative refitting sparsification step
+#' @description Recursive sparsification step for iterative refitting.
+#' @keywords internal
+#' @details Intended as internal function.
+#' @author Andrew Kramer
+#' @author Alexander Mercier
+#' @export
 sparse.step <- function(E_List, S_List, stepsize, spr_score, org_score, func, tol, per, connected){
   S = simplifyNet::EList_Mtrx(S_List, TRUE)
   print(cat(stepsize, nrow(S_List), as.character(spr_score), is.connected(S)))
   stepsize = ceiling(per * stepsize)
   if(connected){
     if(abs(spr_score - org_score) > tol || !(is.connected(S)) || spr_score == Inf){
-      piviot = nrow(S_List) + stepsize
-      S_List = E_List[1:piviot,]
+      pivot = nrow(S_List) + stepsize
+      S_List = E_List[1:pivot,]
       spr_score = func(S_List)
       if(methods::is(spr_score, "list") && spr_score[[1]] != Inf){
         S_List = rerank(S_List, spr_score[[2]]) #refit
@@ -79,8 +88,8 @@ sparse.step <- function(E_List, S_List, stepsize, spr_score, org_score, func, to
     } else if(stepsize == 1) {
         return(S_List)
     } else if(abs(spr_score - org_score) <= tol) {
-      piviot = nrow(S_List) - stepsize
-      S_List = S_List[1:piviot,]
+      pivot = nrow(S_List) - stepsize
+      S_List = S_List[1:pivot,]
       spr_score = func(S_List)
       if(methods::is(spr_score, "list") && spr_score[[1]] != Inf){
         S_List = rerank(S_List, spr_score[[2]]) #refit
@@ -90,8 +99,8 @@ sparse.step <- function(E_List, S_List, stepsize, spr_score, org_score, func, to
     }
   } else {
     if(abs(spr_score - org_score) > tol) {
-      piviot = nrow(S_List) + stepsize
-      S_List = E_List[1:piviot,]
+      pivot = nrow(S_List) + stepsize
+      S_List = E_List[1:pivot,]
       spr_score = func(S_List)
       if(methods::is(spr_score, "list") && spr_score[[1]] != Inf){
         S_List = rerank(S_List, spr_score[[2]]) #refit
@@ -101,8 +110,8 @@ sparse.step <- function(E_List, S_List, stepsize, spr_score, org_score, func, to
     } else if(stepsize == 1) {
       return(S_List)
     } else if(abs(spr_score - org_score) <= tol) {
-      piviot = nrow(S_List) - stepsize
-      S_List = S_List[1:piviot,]
+      pivot = nrow(S_List) - stepsize
+      S_List = S_List[1:pivot,]
       spr_score = func(S_List)
       if(methods::is(spr_score, "list") && spr_score[[1]] != Inf){
         S_List = rerank(S_List, spr_score[[2]]) #refit
@@ -113,9 +122,51 @@ sparse.step <- function(E_List, S_List, stepsize, spr_score, org_score, func, to
   }
 }
 
+#' @name rerank
+#' @title Rerank edges
+#' @description Rerank edges for iterative refitting.
+#' @keywords internal
+#' @details Intended as internal function.
+#' @author Andrew Kramer
+#' @author Alexander Mercier
+#' @export
 rerank <- function(E_List, rank){
   E_List = E_List[order(cbind(E_List, methods::as(rank, 'vector'))[,4], decreasing = TRUE), ]
   return(E_List)
+}
+
+#' @name remove.edges
+#' @title Remove edges
+#' @description remove edges for iterative refitting.
+#' @keywords internal
+#' @details Intended as internal function.
+#' @author Andrew Kramer
+#' @author Alexander Mercier
+#' @export
+remove.edges <- function(per, E_List, S_List){
+  m = nrow(E_List)
+  s = nrow(S_List)
+  frac = s/m
+  new_frac = ceiling(frac * (1-per) * nrow(E_List))
+  S_List = E_List[1:new_frac,]
+  return(S_List)
+}
+
+#' @name add.edges
+#' @title Add edges
+#' @description Add edges for iterative refitting.
+#' @keywords internal
+#' @details Intended as internal function.
+#' @author Andrew Kramer
+#' @author Alexander Mercier
+#' @export
+add.edges <- function(per, E_List, S_List) {
+  m = nrow(E_List)
+  s = nrow(S_List)
+  frac = s/m
+  new_frac = ceiling((frac * (1-per) + 1) * nrow(S_List))
+  S_List = E_List[1:new_frac,]
+  return(S_List)
 }
 
 #' @name find.neighbors
@@ -125,9 +176,13 @@ rerank <- function(E_List, rank){
 #' @param Adj
 #' Adjacency matrix
 #' @param v
-#' Node to find the neighbors of
+#' Node to find the neighbors of.
 # Output:
-#' @return Integers designating node indices of the adjacency matrix for the neighbors of \code{v}
+#' @return Integers designating node indices of the adjacency matrix for the neighbors of \code{v}.
+#' @keywords internal
+#' @details Intended as internal function.
+#' @author Andrew Kramer
+#' @author Alexander Mercier
 #' @export
 find.neighbors <- function(Adj, v){
   neighbors = which(Adj[v, ] != 0, arr.ind = TRUE)
@@ -139,13 +194,17 @@ find.neighbors <- function(Adj, v){
 #' @description  Iterative depth first search.
 # Input:
 #' @param Adj
-#' Adjacency matrix
+#' Adjacency matrix.
 #' @param v
-#' Node to perform DFS from
+#' Node to perform DFS from.
 #' @param discovered
-#' A list of discovered nodes from \code{v}. If initilzing the search, should be all FALSE
+#' A list of discovered nodes from \code{v}. If initilzing the search, should be all FALSE.
 # Output:
-#' @return Logical of length n where TRUE denotes connected to node \code{v}
+#' @return Logical of length n where TRUE denotes connected to node \code{v}.
+#' @keywords internal
+#' @details Intended as internal function.
+#' @author Andrew Kramer
+#' @author Alexander Mercier
 #' @export
 DFS <- function(Adj, v, discovered){
   discovered[v] <- TRUE
@@ -163,9 +222,13 @@ DFS <- function(Adj, v, discovered){
 #' @description  Tests the connectivity of a graph by performing a Depth First Search (DFS) from a random node.
 # Input:
 #' @param Adj
-#' Adjacency matrix
+#' Adjacency matrix.
 # Output:
 #' @return Return TRUE if network is connected and FALSE if not connected.If the network is directed, then this function checks if the network is strongly connected.
+#' @keywords internal
+#' @details Intended as internal function.
+#' @author Andrew Kramer
+#' @author Alexander Mercier
 #' @export
 is.connected <- function(Adj){
   discovered = matrix(FALSE, nrow=1, ncol=ncol(Adj))
@@ -174,36 +237,5 @@ is.connected <- function(Adj){
   return(all(discovered))
 }
 
-remove.edges <- function(per, E_List, S_List){
-  m = nrow(E_List)
-  s = nrow(S_List)
-  frac = s/m
-  new_frac = ceiling(frac * (1-per) * nrow(E_List))
-  S_List = E_List[1:new_frac,]
-  return(S_List)
-}
 
-add.edges <- function(per, E_List, S_List) {
-  m = nrow(E_List)
-  s = nrow(S_List)
-  frac = s/m
-  new_frac = ceiling((frac * (1-per) + 1) * nrow(S_List))
-  S_List = E_List[1:new_frac,]
-  return(S_List)
-}
-
-#' @name LeverageScore
-#' @title Total statistical leverage score
-#' @description  Computes the global statistical leverage score, \eqn{w_e\times R_e}, of a given network
-# Input:
-#' @param E_List
-#' Edge list of the given network in the format of | node 1 | node 2 | weight |
-# Output:
-#' @return Returns the sum of all statistical leverage scores of each edge, \eqn{\sum_{e \in E} w_e \times R_e}
-#' @export
-LeverageScore <- function(E_List){
-  effR = simplifyNet::EffR(E_List)
-  StatLev = effR * E_List[,3]
-  return(sum(StatLev))
-}
 
