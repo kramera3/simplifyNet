@@ -4,10 +4,10 @@
 \alias{EffR}
 \title{Effective resistances calculator}
 \usage{
-EffR(E_List, epsilon = 0.1, type = "kts", tol = 1e-10)
+EffR(network, epsilon = 0.1, type = "kts", tol = 1e-10)
 }
 \arguments{
-\item{E_List}{Edge list formatted | n1 | n2 | weight |.}
+\item{network}{Weighted adjacency matrix, weighted \code{igraph} network, or edge list formatted | n1 | n2 | weight | with colnames \code{c("n1", "n2", "weight")}.}
 
 \item{epsilon}{Variable epsilon governs the relative fidelity of the approximation methods 'spl' and 'kts'. The smaller the value the greater the fidelity of the approximation. Default value is 0.1.}
 
@@ -28,7 +28,18 @@ Calculate or approximate the effective resistances of an inputted, undrected gra
 (3) 'kts' which approximates the effective resistances of the inputted graph using the implementation by Koutis et al. (ideal for large graphs where memory usage is a concern).\cr
 The relative fidelity of the approximation methods is governed by the variable epsilon.
 }
+\details{
+The fidelity of the effective resistance approximation decreases with a decrease in \code{epsilon}. However, it is more important for sparsification by effective resistances that the approximations be roughly equivalent relative to one another, as they will be normalized in a probability distribution where exact values are not needed. \cr
+The number of edges contained in the sparsifier will be less than or equal to the number of samples taken, \code{q}.
+}
 \examples{
-E_List = matrix(c(1,1,2,2,3,3,1,1,1), 3, 3) #Triangle graph, \eqn{K_3}, with edge weights 1
-effR = EffR(E_List, epsilon = 0.1, type = 'kts', tol = 1e-10)
+E_List = matrix(c(1,1,2,2,3,3,1,1,1), 3, 3) #Triangle graph, \eqn{K_3}, with edge weights equal to 1
+effR = simplifyNet::EffR(E_List, epsilon = 0.1, type = 'kts', tol = 1e-10)
+}
+\references{
+Spielman, D. A., & Srivastava, N. (2011). Graph sparsification by effective resistances. SIAM Journal on Computing, 40(6), 1913-1926.\cr
+Koutis, I., Miller, G. L., & Peng, R. (2014). Approaching optimality for solving SDD linear systems. SIAM Journal on Computing, 43(1), 337-354.
+}
+\author{
+Alexander Mercier
 }

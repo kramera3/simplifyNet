@@ -15,3 +15,10 @@ Return diagonal weight matrix, \code{W}, with \eqn{\sqrt(w_e)} on the diagonal.
 \description{
 Calculate the m by m diagonal weight matrix, \code{W}, for an inputted graph with \code{sqrt(w_e)} on the diagonal.
 }
+\details{
+Intended as internal function.
+}
+\author{
+Alexander Mercier
+}
+\keyword{internal}

@@ -15,8 +15,15 @@ Return a signed, m by n, vertex incidence matrix, \code{B}.
 \description{
 Calculate the signed vertex incidence matrix.
 }
+\details{
+Intended as internal function.
+}
 \examples{
 E_List = matrix(c(1,1,2,2,3,3,1,1,1), 3, 3)
 colnames(E_List) <- c("n1", "n2", "weight")
 B = sVIM(E_List)
 }
+\author{
+Alexander Mercier
+}
+\keyword{internal}

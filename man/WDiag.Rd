@@ -15,3 +15,10 @@ Return diagonal weight matrix, \code{W}.
 \description{
 Calculate the m by m diagonal weight matrix, \code{W}, for an inputed graph.
 }
+\details{
+Intended as internal function.
+}
+\author{
+Alexander Mercier
+}
+\keyword{internal}

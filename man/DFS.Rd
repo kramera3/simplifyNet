@@ -7,15 +7,24 @@
 DFS(Adj, v, discovered)
 }
 \arguments{
-\item{Adj}{Adjacency matrix}
+\item{Adj}{Adjacency matrix.}
 
-\item{v}{Node to perform DFS from}
+\item{v}{Node to perform DFS from.}
 
-\item{discovered}{A list of discovered nodes from \code{v}. If initilzing the search, should be all FALSE}
+\item{discovered}{A list of discovered nodes from \code{v}. If initilzing the search, should be all FALSE.}
 }
 \value{
-Logical of length n where TRUE denotes connected to node \code{v}
+Logical of length n where TRUE denotes connected to node \code{v}.
 }
 \description{
 Iterative depth first search.
 }
+\details{
+Intended as internal function.
+}
+\author{
+Andrew Kramer
+
+Alexander Mercier
+}
+\keyword{internal}

@@ -7,7 +7,7 @@
 normProbs(P)
 }
 \arguments{
-\item{P}{Numerics to be normalized to probabilities}
+\item{P}{Numerics to be normalized to probabilities.}
 }
 \value{
 Return probabilities where their sum is 1.
@@ -15,3 +15,10 @@ Return probabilities where their sum is 1.
 \description{
 Normalize numerics to probabilities such that the sum of the vector equals 1.
 }
+\details{
+Intended as internal function.
+}
+\author{
+Alexander Mercier
+}
+\keyword{internal}

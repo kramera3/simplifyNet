@@ -7,7 +7,7 @@
 is.connected(Adj)
 }
 \arguments{
-\item{Adj}{Adjacency matrix}
+\item{Adj}{Adjacency matrix.}
 }
 \value{
 Return TRUE if network is connected and FALSE if not connected.If the network is directed, then this function checks if the network is strongly connected.
@@ -15,3 +15,12 @@ Return TRUE if network is connected and FALSE if not connected.If the network is
 \description{
 Tests the connectivity of a graph by performing a Depth First Search (DFS) from a random node.
 }
+\details{
+Intended as internal function.
+}
+\author{
+Andrew Kramer
+
+Alexander Mercier
+}
+\keyword{internal}

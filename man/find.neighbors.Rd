@@ -9,11 +9,20 @@ find.neighbors(Adj, v)
 \arguments{
 \item{Adj}{Adjacency matrix}
 
-\item{v}{Node to find the neighbors of}
+\item{v}{Node to find the neighbors of.}
 }
 \value{
-Integers designating node indices of the adjacency matrix for the neighbors of \code{v}
+Integers designating node indices of the adjacency matrix for the neighbors of \code{v}.
 }
 \description{
 Finds the neighbors of a given node, \code{v}.
 }
+\details{
+Intended as internal function.
+}
+\author{
+Andrew Kramer
+
+Alexander Mercier
+}
+\keyword{internal}

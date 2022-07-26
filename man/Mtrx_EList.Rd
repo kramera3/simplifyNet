@@ -7,7 +7,7 @@
 Mtrx_EList(A, directed = FALSE)
 }
 \arguments{
-\item{A}{Weighted adjacency matrix}
+\item{A}{Weighted adjacency matrix.}
 
 \item{directed}{Specifies if the network is directed or undirected. Default is set to undirected.}
 }
@@ -15,7 +15,7 @@ Mtrx_EList(A, directed = FALSE)
 An edge list, \code{E_List}, of adjacency matrix, \code{A}, of the form | n1 | n2 | weight |.
 }
 \description{
-Convert an adjacency matrix to an edge list
+Convert an adjacency matrix to an edge list.
 }
 \author{
 Alexander Mercier

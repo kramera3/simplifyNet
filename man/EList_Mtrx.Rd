@@ -15,5 +15,8 @@ EList_Mtrx(E_List, directed = FALSE)
 Adjacency matrix constructed from edge list, \code{E_List}, of the class dgCMatrix.
 }
 \description{
-Convert an edge list to an adjacency matrix
+Convert an edge list to an adjacency matrix.
+}
+\author{
+Alexander Mercier
 }

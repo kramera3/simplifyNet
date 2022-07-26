@@ -7,15 +7,22 @@
 Lap(A)
 }
 \arguments{
-\item{A}{Weighted adjacency matrix}
+\item{A}{Weighted adjacency matrix.}
 }
 \value{
 Graph Laplacian, \code{L}, of the class dgCMatrix.
 }
 \description{
-Find the graph Laplacian from a weighted adjacency matrix
+Find the graph Laplacian from a weighted adjacency matrix.
+}
+\details{
+Intended as internal function.
 }
 \examples{
 A = matrix(c(0,1,1,1,0,1,1,1,0), 3 ,3)
 L = Lap(A)
 }
+\author{
+Alexander Mercier
+}
+\keyword{internal}
