@@ -346,7 +346,7 @@ normProbs <- function(P){
 #' @return A sparsified network, \code{H}, edge list where the number of edges is dependent on the number of samples taken, \code{q}.
 #' @author Alexander Mercier
 #' @references Spielman, D. A., & Srivastava, N. (2011). Graph sparsification by effective resistances. SIAM Journal on Computing, 40(6), 1913-1926.
-#' @details The performance of this method is dependent on the size of the network and fidelity of the effective resistance approximation. The network should be "sufficently large." \cr
+#' @details The performance of this method is dependent on the size of the network and fidelity of the effective resistance approximation. The network should be "sufficiently large." \cr
 #' For more details, see: https://epubs.siam.org/doi/epdf/10.1137/080734029
 #' @examples
 #' #Generate random ER graph with uniformly random edge weights

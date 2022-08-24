@@ -1,6 +1,6 @@
 #' @name irefit
 #' @title Iterative refitting
-#' @description  Iterative sparsifcation based refiting.
+#' @description  Iterative sparsifcation based refitting.
 # Input:
 #' @param network
 #' Weighted adjacency matrix, weighted \code{igraph} network, or edge list formatted | n1 | n2 | weight | with colnames \code{c("n1", "n2", "weight")}.
