@@ -20,6 +20,8 @@
 #' igraph::E(g)$weight <- runif(length(igraph::E(g)))
 #' #Sparsify g via GNS
 #' S = gns(g, remove.prop = 0.5)
+#' sg = simplifyNet::net.as(S, net.to="igraph", directed=FALSE)
+#' igraph::ecount(sg)/igraph::ecount(g)#fraction of edges in the sparsifier
 #' @export
 
 #Returns the sparse network by some global threshold

@@ -34,7 +34,7 @@ A wrapper function may have to be written.}
 Sparsified network, \code{H}, which still maintains evaluator function, \code{func}, plus/minus \code{tol}.
 }
 \description{
-Iterative sparsifcation based refiting.
+Iterative sparsifcation based refitting.
 }
 \author{
 Alexander Mercier
