@@ -27,6 +27,8 @@
 #' S = lans(g, alpha = 0.3, output = "undirected", directed = FALSE)
 #' #Convert sparsifier to edge list
 #' S_List = simplifyNet::Mtrx_EList(S, directed = FALSE)
+#' sg = simplifyNet::net.as(S_List, net.to="igraph", directed=FALSE)
+#' igraph::ecount(sg)/igraph::ecount(g)#fraction of edges in the sparsifier
 #' @export
 
 

@@ -34,7 +34,22 @@ A wrapper function may have to be written.}
 Sparsified network, \code{H}, which still maintains evaluator function, \code{func}, plus/minus \code{tol}.
 }
 \description{
-Iterative sparsifcation based refiting.
+Iterative sparsifcation based refitting.
+}
+\examples{
+#Set scoring function
+mean.weight.degree <- function(graph){
+graph.ob <- igraph::graph_from_edgelist(graph[,1:2])
+igraph::E(graph.ob)$weight <- graph[,3]
+return(mean(igraph::strength(graph.ob)))
+}
+
+#Generate random graph
+g <- igraph::erdos.renyi.game(100, 0.1)
+igraph::E(g)$weight <- rexp(length(igraph::E(g)), rate=10) #random edge weights from exp(10)
+E_List <- cbind(igraph::as_edgelist(g), igraph::E(g)$weight)
+colnames(E_List) <- c("n1", "n2", "weight")
+sparse_dist <- simplifyNet::irefit(E_List, func=mean.weight.degree, tol = 0.1)
 }
 \author{
 Alexander Mercier

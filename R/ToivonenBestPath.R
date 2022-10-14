@@ -28,8 +28,10 @@
 #' #Generate random ER graph with uniformly random edge weights
 #' g = igraph::erdos.renyi.game(100, 0.1)
 #' igraph::E(g)$weight <- runif(length(igraph::E(g)))
-#' #Sparsify g via LANS
-#' S = simplifyNet::bestpath(g, directed = FALSE, associative = TRUE) #Show edge list converstion
+#' #Sparsify g via bestpath
+#' S = simplifyNet::bestpath(g, directed = FALSE, associative = TRUE) #Show edge list conversion
+#' sg = simplifyNet::net.as(S, net.to="igraph", directed=FALSE)
+#' igraph::ecount(sg)/igraph::ecount(g)#fraction of edges in the sparsifier
 #' @export
 
 # Returns the sparse network containing every link that is in a best path, Toivonen et al

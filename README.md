@@ -4,7 +4,7 @@ Package for network sparsification.
 
 ## Description
 
-An R package for network sparsification with a variety of novel and known network sparsification techniques. All network sparsification reduce the number of edges, not the number of nodes. A network is usually a large, complex weighted graph obtained from real-world data. It is commonly stored as an adjacency matrix or edge list. Network sparsification is sometimes referred to as network dimensionality reduction. 
+An R package for network sparsification with a variety of novel and known network sparsification techniques. All network sparsification reduce the number of edges, not the number of nodes. A network is usually a large, complex weighted graph obtained from real-world data. It is commonly stored as an adjacency matrix or edge list. Network sparsification is sometimes referred to as network dimensionality reduction.
 
 ## Getting Started
 
@@ -83,11 +83,11 @@ EffRSparse(n, E_List, q, effR)
 
     -   **type**: There are three methods.
 
-        (1) 'ext' which exactly calculates the effective resistances (WARNING! Not ideal for large graphs).
+        $1$ 'ext' which exactly calculates the effective resistances (WARNING! Not ideal for large graphs).
 
-        (2) 'spl' which approximates the effective resistances of the inputted graph using the original Spielman-Srivastava algorithm.
+        $2$ 'spl' which approximates the effective resistances of the inputted graph using the original Spielman-Srivastava algorithm.
 
-        (3) 'kts' which approximates the effective resistances of the inputted graph using the implementation by Koutis et al. (ideal for large graphs where memory usage is a concern).
+        $3$ 'kts' which approximates the effective resistances of the inputted graph using the implementation by Koutis et al. (ideal for large graphs where memory usage is a concern).
 
     -   **tol**: Tolereance for the linear algebra (conjugate gradient) solver to find the effective resistances. Default value is 1e-10.
 
@@ -104,9 +104,9 @@ EffRSparse(n, E_List, q, effR)
 ## Authors
 
 -   **Dr. Andrew Kramer** - Primary Author [simplifyNet](https://github.com/kramer3/simplifyNet)
--   **Alexander Mercier** - Package Maintainer 
+-   **Alexander Mercier** - Package Maintainer
 -   **Shubhankar Tripathi** - Contributor
--   **Tomlin Pulliam** -  Contributor
+-   **Tomlin Pulliam** - Contributor
 -   **John Drake** - Contributor
 
 ## Method Acknowledgements

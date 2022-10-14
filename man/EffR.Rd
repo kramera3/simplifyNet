@@ -22,7 +22,7 @@ EffR(network, epsilon = 0.1, type = "kts", tol = 1e-10)
 Return either exact or approximate effective resistances for each edge in the same order as "weight" in the edge list.
 }
 \description{
-Calculate or approximate the effective resistances of an inputted, undrected graph. There are three methods. \cr
+Calculate or approximate the effective resistances of an inputted, undirected graph. There are three methods. \cr
 (1) 'ext' which exactly calculates the effective resistances (WARNING! Not ideal for large graphs).\cr
 (2) 'spl' which approximates the effective resistances of the inputted graph using the original Spielman-Srivastava algorithm.\cr
 (3) 'kts' which approximates the effective resistances of the inputted graph using the implementation by Koutis et al. (ideal for large graphs where memory usage is a concern).\cr

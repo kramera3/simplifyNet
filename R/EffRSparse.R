@@ -101,19 +101,29 @@ Mtrx_EList <- function(A , directed=FALSE){
 #' Edge list formatted | n1 | n2 | weight |.
 #' @param directed
 #' Specifies if the network is directed or undirected. Default is set to undirected.
+#' @param n
+#' Specify number of nodes. Default is \code{max(E_List[,1:2])}.
 # Output:
 #' @return Adjacency matrix constructed from edge list, \code{E_List}, of the class dgCMatrix.
 #' @author Alexander Mercier
 #' @export
-EList_Mtrx <- function(E_List, directed=FALSE){
+EList_Mtrx <- function(E_List, directed=FALSE, n){
   if(directed == FALSE){
     edges1 = c(E_List[,1], E_List[,2])
     edges2 = c(E_List[,2], E_List[,1])
     weights = c(E_List[,3], E_List[,3])
-    A = Matrix::sparseMatrix(i=edges1, j=edges2, x=weights)
+    if(missing(n)){
+      A = Matrix::sparseMatrix(i=edges1, j=edges2, x=weights)
+    } else {
+      A = Matrix::sparseMatrix(i=edges1, j=edges2, x=weights, dims = c(n, n))
+    }
   }
   if(directed == TRUE){
-    A = Matrix::sparseMatrix(i=E_List[,1], j=E_List[,2], x=E_List[,3])
+    if(missing(n)){
+      A = Matrix::sparseMatrix(i=E_List[,1], j=E_List[,2], x=E_List[,3])
+    } else {
+      A = Matrix::sparseMatrix(i=E_List[,1], j=E_List[,2], x=E_List[,3], dims = c(n, n))
+    }
   }
   return(A)
 }
@@ -209,7 +219,7 @@ sqrt_WDiag <- function(weights){
 
 #' @name EffR
 #' @title Effective resistances calculator
-#' @description Calculate or approximate the effective resistances of an inputted, undrected graph. There are three methods. \cr
+#' @description Calculate or approximate the effective resistances of an inputted, undirected graph. There are three methods. \cr
 #' (1) 'ext' which exactly calculates the effective resistances (WARNING! Not ideal for large graphs).\cr
 #' (2) 'spl' which approximates the effective resistances of the inputted graph using the original Spielman-Srivastava algorithm.\cr
 #' (3) 'kts' which approximates the effective resistances of the inputted graph using the implementation by Koutis et al. (ideal for large graphs where memory usage is a concern).\cr
@@ -329,7 +339,7 @@ normProbs <- function(P){
 #' @name EffRSparse
 #' @author Daniel A. Spielman,
 #' @title Sparsification through edge sampling via effective resistances
-#' @description Sparsify an undirected network by sampling edges proportional to w_e * R_e.\cr
+#' @description Sparsify an undirected network by sampling edges proportional to \eqn{w_e * R_e} where \eqn{w_e} is the weight of edge \eqn{e} and \eqn{R_e} is the effective resistance of edge \eqn{e}.\cr
 #' Approximately preserves the graph Laplacian, \code{L}, with increasing fidelity as the number of samples taken increases.
 # Input:
 #' @param network
@@ -356,6 +366,8 @@ normProbs <- function(P){
 #' effR = simplifyNet::EffR(g)
 #' #Use effective resistances to create spectral sparsifier by edge sampling
 #' S = simplifyNet::EffRSparse(g, q = 200, effR = effR, seed = 150)
+#' sg = simplifyNet::net.as(S, net.to="igraph", directed=FALSE)
+#' igraph::ecount(sg)/igraph::ecount(g)#fraction of edges in the sparsifier
 #' @export
 EffRSparse <- function(network, q, effR, seed, n){
   E_List = simplifyNet::net.as(network, "E_List") #Never should be directed
