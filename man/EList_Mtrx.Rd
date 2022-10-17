@@ -4,12 +4,14 @@
 \alias{EList_Mtrx}
 \title{Edge list to adjacency matrix}
 \usage{
-EList_Mtrx(E_List, directed = FALSE)
+EList_Mtrx(E_List, directed = FALSE, n)
 }
 \arguments{
 \item{E_List}{Edge list formatted | n1 | n2 | weight |.}
 
 \item{directed}{Specifies if the network is directed or undirected. Default is set to undirected.}
+
+\item{n}{Specify number of nodes. Default is \code{max(E_List[,1:2])}.}
 }
 \value{
 Adjacency matrix constructed from edge list, \code{E_List}, of the class dgCMatrix.

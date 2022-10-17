@@ -21,6 +21,20 @@
 #' @return Sparsified network, \code{H}, which still maintains evaluator function, \code{func}, plus/minus \code{tol}.
 #' @author Alexander Mercier
 #' @author Andrew Kramer
+#' @examples
+#' #Set scoring function
+#' mean.weight.degree <- function(graph){
+#' graph.ob <- igraph::graph_from_edgelist(graph[,1:2])
+#' igraph::E(graph.ob)$weight <- graph[,3]
+#' return(mean(igraph::strength(graph.ob)))
+#' }
+#'
+#' #Generate random graph
+#' g <- igraph::erdos.renyi.game(100, 0.1)
+#' igraph::E(g)$weight <- rexp(length(igraph::E(g)), rate=10) #random edge weights from exp(10)
+#' E_List <- cbind(igraph::as_edgelist(g), igraph::E(g)$weight)
+#' colnames(E_List) <- c("n1", "n2", "weight")
+#' sparse_dist <- simplifyNet::irefit(E_List, func=mean.weight.degree, tol = 0.1)
 #' @export
 irefit <- function(network, func, tol, rank = 'none', connected = FALSE, directed = FALSE, per = 0.5){
   E_List = simplifyNet::net.as(network, net.to = "E_List", directed = directed)
@@ -72,8 +86,8 @@ irefit <- function(network, func, tol, rank = 'none', connected = FALSE, directe
 #' @author Alexander Mercier
 #' @export
 sparse.step <- function(E_List, S_List, stepsize, spr_score, org_score, func, tol, per, connected){
-  S = simplifyNet::EList_Mtrx(S_List, TRUE)
-  print(cat(stepsize, nrow(S_List), as.character(spr_score), is.connected(S)))
+  S = simplifyNet::EList_Mtrx(S_List, TRUE, n=max(E_List[,1:2]))
+  print(sprintf("Stepsize %d, EdgeNum %d, Score %f, Connected %s", stepsize, nrow(S_List), spr_score, as.character(is.connected(S))))
   stepsize = ceiling(per * stepsize)
   if(connected){
     if(abs(spr_score - org_score) > tol || !(is.connected(S)) || spr_score == Inf){

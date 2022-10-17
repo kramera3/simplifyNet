@@ -25,8 +25,10 @@ Calculates network sparsifier from best path
 #Generate random ER graph with uniformly random edge weights
 g = igraph::erdos.renyi.game(100, 0.1)
 igraph::E(g)$weight <- runif(length(igraph::E(g)))
-#Sparsify g via LANS
-S = simplifyNet::bestpath(g, directed = FALSE, associative = TRUE) #Show edge list converstion
+#Sparsify g via bestpath
+S = simplifyNet::bestpath(g, directed = FALSE, associative = TRUE) #Show edge list conversion
+sg = simplifyNet::net.as(S, net.to="igraph", directed=FALSE)
+igraph::ecount(sg)/igraph::ecount(g)#fraction of edges in the sparsifier
 }
 \references{
 Toivonen, H., Mahler, S., & Zhou, F. (2010, May). A framework for path-oriented network simplification. In International Symposium on Intelligent Data Analysis (pp. 220-231). Springer, Berlin, Heidelberg.

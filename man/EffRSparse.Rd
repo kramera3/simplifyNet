@@ -21,11 +21,11 @@ EffRSparse(network, q, effR, seed, n)
 A sparsified network, \code{H}, edge list where the number of edges is dependent on the number of samples taken, \code{q}.
 }
 \description{
-Sparsify an undirected network by sampling edges proportional to w_e * R_e.\cr
+Sparsify an undirected network by sampling edges proportional to \eqn{w_e * R_e} where \eqn{w_e} is the weight of edge \eqn{e} and \eqn{R_e} is the effective resistance of edge \eqn{e}.\cr
 Approximately preserves the graph Laplacian, \code{L}, with increasing fidelity as the number of samples taken increases.
 }
 \details{
-The performance of this method is dependent on the size of the network and fidelity of the effective resistance approximation. The network should be "sufficently large." \cr
+The performance of this method is dependent on the size of the network and fidelity of the effective resistance approximation. The network should be "sufficiently large." \cr
 For more details, see: https://epubs.siam.org/doi/epdf/10.1137/080734029
 }
 \examples{
@@ -36,6 +36,8 @@ igraph::E(g)$weight <- runif(length(igraph::E(g)))
 effR = simplifyNet::EffR(g)
 #Use effective resistances to create spectral sparsifier by edge sampling
 S = simplifyNet::EffRSparse(g, q = 200, effR = effR, seed = 150)
+sg = simplifyNet::net.as(S, net.to="igraph", directed=FALSE)
+igraph::ecount(sg)/igraph::ecount(g)#fraction of edges in the sparsifier
 }
 \references{
 Spielman, D. A., & Srivastava, N. (2011). Graph sparsification by effective resistances. SIAM Journal on Computing, 40(6), 1913-1926.
