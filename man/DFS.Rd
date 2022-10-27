@@ -11,7 +11,7 @@ DFS(Adj, v, discovered)
 
 \item{v}{Node to perform DFS from.}
 
-\item{discovered}{A list of discovered nodes from \code{v}. If initilzing the search, should be all FALSE.}
+\item{discovered}{A list of discovered nodes from \code{v}. If initializing the search, should be all FALSE.}
 }
 \value{
 Logical of length n where TRUE denotes connected to node \code{v}.

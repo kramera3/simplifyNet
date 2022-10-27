@@ -79,7 +79,7 @@ EffRSparse(n, E_List, q, effR)
 
     -   **E_List**: Edge list formatted \| n1 \| n2 \| weight \|.
 
-    -   **epsilon**: Governs the relative fidelity of the approximation methods 'spl' and 'kts'. The smaller the value, the greater the fidelity of the approixmation and the greater the space and time requirements. Default value is 0.1.
+    -   **epsilon**: Governs the relative fidelity of the approximation methods 'spl' and 'kts'. The smaller the value, the greater the fidelity of the approximation and the greater the space and time requirements. Default value is 0.1.
 
     -   **type**: There are three methods.
 
@@ -95,7 +95,7 @@ EffRSparse(n, E_List, q, effR)
 
     -   **n**: The number of nodes in the network.
 
-    -   **E_List**: Edge list formated \| n1 \| n2 \| weight \|.
+    -   **E_List**: Edge list formatted \| n1 \| n2 \| weight \|.
 
     -   **q**: The numbers of samples taken. The fidelity to the original network increases as the number of samples increases, but decreases the sparseness.
 
@@ -103,7 +103,7 @@ EffRSparse(n, E_List, q, effR)
 
 ## Authors
 
--   **Dr. Andrew Kramer** - Primary Author [simplifyNet](https://github.com/kramer3/simplifyNet)
+-   **Dr. Andrew Kramer** - Primary Author [simplifyNet](https://github.com/kramera3/simplifyNet)
 -   **Alexander Mercier** - Package Maintainer
 -   **Shubhankar Tripathi** - Contributor
 -   **Tomlin Pulliam** - Contributor

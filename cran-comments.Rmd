@@ -1,0 +1,9 @@
+This is the authors first submission to CRAN.
+
+## R CMD check results
+
+There were no ERRORs or WARNINGs.
+
+## Downstream dependencies
+
+No packages are dependencies of simplifyNet.

@@ -212,7 +212,7 @@ find.neighbors <- function(Adj, v){
 #' @param v
 #' Node to perform DFS from.
 #' @param discovered
-#' A list of discovered nodes from \code{v}. If initilzing the search, should be all FALSE.
+#' A list of discovered nodes from \code{v}. If initializing the search, should be all FALSE.
 # Output:
 #' @return Logical of length n where TRUE denotes connected to node \code{v}.
 #' @keywords internal

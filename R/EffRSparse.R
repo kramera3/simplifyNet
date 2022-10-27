@@ -51,7 +51,7 @@ net.as <- function(network, net.to = "E_List", directed = FALSE){
 }
 
 #' @name igraph.to.elist
-#' @title Igraph to EList
+#' @title igraph to EList
 #' @description Convert igraph object to edge list.
 #' @keywords internal
 #' @details Intended as internal function.
@@ -179,7 +179,7 @@ sVIM <- function(E_List){
 
 #' @name WDiag
 #' @title Diagonal, m by m, weight matrix
-#' @description  Calculate the m by m diagonal weight matrix, \code{W}, for an inputed graph.
+#' @description  Calculate the m by m diagonal weight matrix, \code{W}, for an imputed graph.
 # Input:
 #' @param weights
 #' List of edges corresponding to edge list.

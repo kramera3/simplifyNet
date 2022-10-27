@@ -2,7 +2,7 @@
 % Please edit documentation in R/EffRSparse.R
 \name{igraph.to.elist}
 \alias{igraph.to.elist}
-\title{Igraph to EList}
+\title{igraph to EList}
 \usage{
 igraph.to.elist(g)
 }
