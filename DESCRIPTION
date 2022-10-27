@@ -1,6 +1,6 @@
 Package: simplifyNet
 Type: Package
-Title: simplifyNet is a Suite of Network Sparsification Tools
+Title: The simplifyNet Package is a Suite of Network Sparsification Tools
 Version: 0.0.1
 Language: en-US
 Authors@R: 
