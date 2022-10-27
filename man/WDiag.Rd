@@ -13,7 +13,7 @@ WDiag(weights)
 Return diagonal weight matrix, \code{W}.
 }
 \description{
-Calculate the m by m diagonal weight matrix, \code{W}, for an inputed graph.
+Calculate the m by m diagonal weight matrix, \code{W}, for an imputed graph.
 }
 \details{
 Intended as internal function.
