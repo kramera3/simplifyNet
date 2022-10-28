@@ -26,7 +26,7 @@
 #' @references Toivonen, H., Mahler, S., & Zhou, F. (2010, May). A framework for path-oriented network simplification. In International Symposium on Intelligent Data Analysis (pp. 220-231). Springer, Berlin, Heidelberg.
 #' @examples
 #' #Generate random ER graph with uniformly random edge weights
-#' g = igraph::erdos.renyi.game(100, 0.1)
+#' g = igraph::erdos.renyi.game(50, 0.1)
 #' igraph::E(g)$weight <- runif(length(igraph::E(g)))
 #' #Sparsify g via bestpath
 #' S = simplifyNet::bestpath(g, directed = FALSE, associative = TRUE) #Show edge list conversion

@@ -1,8 +1,22 @@
-This is the authors first submission to CRAN.
+This is the authors' first submission to CRAN.
+
+## Resubmission
+This is a resubmission. In this version I have:
+
+* Added certain reused words to the user dictionary. 
+
+* Edited the example of bestpath to have its running time <5s.
+
 
 ## R CMD check results
 
 There were no ERRORs or WARNINGs.
+
+There were two NOTES that can be easily ignored:
+
+* There were three possibly misspelled words in DESCRIPTION: Sparsification, simplifyNet, and sparsification. These three words are spelled correctly and are technical terms related to our methods or the package name.
+
+* "Found the following files/directorie: 'lastMiKTeXException'" is a documented problem with MiKTeX and has no influence over the compilation of simplifyNet or its documentation. 
 
 ## Downstream dependencies
 
