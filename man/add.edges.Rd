@@ -6,6 +6,9 @@
 \usage{
 add.edges(per, E_List, S_List)
 }
+\value{
+Return an expanded edge list with an increased number of edges determined by \code{per}.
+}
 \description{
 Add edges for iterative refitting.
 }

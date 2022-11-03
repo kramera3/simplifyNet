@@ -6,6 +6,9 @@
 \usage{
 rerank(E_List, rank)
 }
+\value{
+Return an edge list reordered according to \code{rank}.
+}
 \description{
 Rerank edges for iterative refitting.
 }

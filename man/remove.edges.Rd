@@ -6,6 +6,9 @@
 \usage{
 remove.edges(per, E_List, S_List)
 }
+\value{
+Return a truncated edge list with a decreased number of edges determined by \code{per}.
+}
 \description{
 remove edges for iterative refitting.
 }

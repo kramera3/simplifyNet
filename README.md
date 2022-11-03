@@ -89,7 +89,7 @@ EffRSparse(n, E_List, q, effR)
 
         $3$ 'kts' which approximates the effective resistances of the inputted graph using the implementation by Koutis et al. (ideal for large graphs where memory usage is a concern).
 
-    -   **tol**: Tolereance for the linear algebra (conjugate gradient) solver to find the effective resistances. Default value is 1e-10.
+    -   **tol**: Tolerance for the linear algebra (conjugate gradient) solver to find the effective resistances. Default value is 1e-10.
 
 2.  **EffRSparse**, network sparsification through sampling effective resistances.
 
@@ -111,7 +111,7 @@ EffRSparse(n, E_List, q, effR)
 
 ## Method Acknowledgements
 
--   **EffR** and **EffRSparse** are based on work by [Daniel A. Spielman and Nikihl Srivastava](https://arxiv.org/abs/0803.0929).
+-   **EffR** and **EffRSparse** are based on work by [Daniel A. Spielman and Nikihl Srivastava](009).
 -   **EffR** also based on work by [Koutis et al.](https://www.cs.cmu.edu/~jkoutis/papers/stacs239koutis.pdf)
 -   **toivonen** based on work by [Hannu Toivonen et al.](https://link.springer.com/chapter/10.1007/978-3-642-13062-5_21)
 -   **lans** based on work by [Foti et al.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3035633/)

@@ -82,6 +82,7 @@ irefit <- function(network, func, tol, rank = 'none', connected = FALSE, directe
 #' @description Recursive sparsification step for iterative refitting.
 #' @keywords internal
 #' @details Intended as internal function.
+#' @return Return sparsified edge list.
 #' @author Andrew Kramer
 #' @author Alexander Mercier
 #' @export
@@ -141,6 +142,7 @@ sparse.step <- function(E_List, S_List, stepsize, spr_score, org_score, func, to
 #' @description Rerank edges for iterative refitting.
 #' @keywords internal
 #' @details Intended as internal function.
+#' @return Return an edge list reordered according to \code{rank}.
 #' @author Andrew Kramer
 #' @author Alexander Mercier
 #' @export
@@ -154,6 +156,7 @@ rerank <- function(E_List, rank){
 #' @description remove edges for iterative refitting.
 #' @keywords internal
 #' @details Intended as internal function.
+#' @return Return a truncated edge list with a decreased number of edges determined by \code{per}.
 #' @author Andrew Kramer
 #' @author Alexander Mercier
 #' @export
@@ -171,6 +174,7 @@ remove.edges <- function(per, E_List, S_List){
 #' @description Add edges for iterative refitting.
 #' @keywords internal
 #' @details Intended as internal function.
+#' @return Return an expanded edge list with an increased number of edges determined by \code{per}.
 #' @author Andrew Kramer
 #' @author Alexander Mercier
 #' @export

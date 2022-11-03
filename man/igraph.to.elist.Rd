@@ -6,6 +6,9 @@
 \usage{
 igraph.to.elist(g)
 }
+\value{
+Return an edge list with weights from an igraph object.
+}
 \description{
 Convert igraph object to edge list.
 }
