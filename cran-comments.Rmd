@@ -1,12 +1,22 @@
 This is the authors' first submission to CRAN.
 
 ## Resubmission
+
 This is a resubmission. In this version I have:
 
-* Added certain reused words to the user dictionary. 
+-   Added certain reused words to the user dictionary.
 
-* Edited the example of bestpath to have its running time <5s.
+-   Edited the example of bestpath to have its running time \<5s.
 
+Responding to CRAN comments by Beni Altmann in our resubmission:
+
+-   Changed the Title field of DESCRIPTION to omit the self-evident fact that this is a package entitled "simplifyNet".
+
+-   Changed the Description field of DESCRIPTION to mit that this is an R package.
+
+-   Added utilized references in the format "authors (year)\<\>" to the Description field of DESCRIPTION.
+
+-   Added \code{\value} fields to the following function documentation: `add.edges`, `igraph.to.elist`, `remove.edges`, `rerank`, and `sparse.step`. 
 
 ## R CMD check results
 
@@ -14,9 +24,9 @@ There were no ERRORs or WARNINGs.
 
 There were two NOTES that can be easily ignored:
 
-* There were three possibly misspelled words in DESCRIPTION: Sparsification, simplifyNet, and sparsification. These three words are spelled correctly and are technical terms related to our methods or the package name.
+-   There were three possibly misspelled words in DESCRIPTION: Sparsification, simplifyNet, and sparsification. These three words are spelled correctly and are technical terms related to our methods or the package name.
 
-* "Found the following files/directorie: 'lastMiKTeXException'" is a documented problem with MiKTeX and has no influence over the compilation of simplifyNet or its documentation. 
+-   "Found the following files/directorie: 'lastMiKTeXException'" is a documented problem with MiKTeX and has no influence over the compilation of simplifyNet or its documentation.
 
 ## Downstream dependencies
 
