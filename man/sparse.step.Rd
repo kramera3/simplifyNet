@@ -16,6 +16,9 @@ sparse.step(
   connected
 )
 }
+\value{
+Return sparsified edge list.
+}
 \description{
 Recursive sparsification step for iterative refitting.
 }

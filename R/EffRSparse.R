@@ -55,6 +55,7 @@ net.as <- function(network, net.to = "E_List", directed = FALSE){
 #' @description Convert igraph object to edge list.
 #' @keywords internal
 #' @details Intended as internal function.
+#' @return Return an edge list with weights from an igraph object.
 #' @author Alexander Mercier
 #' @export
 igraph.to.elist <- function(g){
