@@ -111,7 +111,7 @@ EffRSparse(n, E_List, q, effR)
 
 ## Method Acknowledgements
 
--   **EffR** and **EffRSparse** are based on work by [Daniel A. Spielman and Nikihl Srivastava](009).
+-   **EffR** and **EffRSparse** are based on work by [Daniel A. Spielman and Nikihl Srivastava](https://epubs.siam.org/doi/abs/10.1137/080734029?casa_token=2zbhxtOO76wAAAAA:VUhdSEpKiYM2vX3_yEbrOnhSOJaGnXiTjSmlmvmqHP0jb1-sS5tIaF1V5B4UFReBAcRON8WU7Q).
 -   **EffR** also based on work by [Koutis et al.](https://www.cs.cmu.edu/~jkoutis/papers/stacs239koutis.pdf)
 -   **toivonen** based on work by [Hannu Toivonen et al.](https://link.springer.com/chapter/10.1007/978-3-642-13062-5_21)
 -   **lans** based on work by [Foti et al.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3035633/)
