@@ -27,10 +27,10 @@ Authors@R:
 Maintainer: Alexander Mercier <amercier@g.harvard.edu>
 Description: Network sparsification with a variety of novel and known network sparsification 
     techniques. All network sparsification techniques reduce the number of edges, not the number 
-    of nodes. Network sparsification is sometimes referred to as network dimensionality reduction.\n 
-    This package is based on the work of Spielman, D., Srivastava, N. (2009)<arXiv:0803.0929>.\n 
-    Koutis I., Levin, A., Peng, R. (2013)<arXiv:1209.5821>.\n Toivonen, H., Mahler, S., Zhou, F. 
-    (2010)<doi:10.1007>.\n Foti, N., Hughes, J., Rockmore, D. (2011)<doi:10.1371>.
+    of nodes. Network sparsification is sometimes referred to as network dimensionality reduction. 
+    This package is based on the work of Spielman, D., Srivastava, N. (2009)<arXiv:0803.0929>. 
+    Koutis I., Levin, A., Peng, R. (2013)<arXiv:1209.5821>. Toivonen, H., Mahler, S., Zhou, F. 
+    (2010)<doi:10.1007>. Foti, N., Hughes, J., Rockmore, D. (2011)<doi:10.1371>.
 Depends:
     R (>= 3.4),
 Imports:
